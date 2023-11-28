@@ -1,7 +1,11 @@
-import React from 'react'
-
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import SignIn from "./pages/SignIn";
 export default function App() {
   return (
-    <div className='text-blue-500'>App</div>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/sign-in" element={<SignIn />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
