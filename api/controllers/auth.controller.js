@@ -18,7 +18,7 @@ export const signup = async (req, res, next) => {
     };
     //verify email
     const activationToken = jwt.sign(user, process.env.ACTIVATION_SECRET, {
-      expiresIn: "5m",
+      expiresIn: "10m",
     });
     const activationUrl = `http://localhost:5173/activation/${activationToken}`;
     try {
