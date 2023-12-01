@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import sendMail from "../utils/sendMail.js";
 import sendToken from "../utils/jwtToken.js";
 import catchAsyncErrors from "../middleware/catchAsyncErrors.js";
+import bcryptjs from "bcryptjs";
 
 export const signup = async (req, res, next) => {
   try {
@@ -16,7 +17,6 @@ export const signup = async (req, res, next) => {
       email: email,
       password: password,
     };
-    //verify email
     const activationToken = jwt.sign(user, process.env.ACTIVATION_SECRET, {
       expiresIn: "10m",
     });
@@ -45,14 +45,14 @@ export const activation = catchAsyncErrors(async (req, res, next) => {
     const newUser = jwt.verify(activation_token, process.env.ACTIVATION_SECRET);
 
     if (!newUser) {
-      return next(errorHandler(400,"Invalid token"));
+      return next(errorHandler(400, "Invalid token"));
     }
     const { name, email, password } = newUser;
 
     let user = await User.findOne({ email });
 
     if (user) {
-      return next(errorHandler(400,"User already exists"));
+      return next(errorHandler(400, "User already exists"));
     }
     user = await User.create({
       name,
@@ -62,6 +62,46 @@ export const activation = catchAsyncErrors(async (req, res, next) => {
 
     sendToken(user, 201, res);
   } catch (error) {
-    return next(errorHandler(500,error.message));
+    return next(errorHandler(500, error.message));
   }
 });
+
+export const forgetpassword = async (req, res, next) => {
+  const { email } = req.body;
+  const validUser = await User.findOne({ email });
+  if (!validUser) return next(errorHandler(404, "User not found!"));
+  const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET_KEY, {
+    expiresIn: "10m",
+  });
+  const resetPasswordUrl = `http://localhost:5173/resetpassword/${validUser._id}/${token}`;
+  try {
+    await sendMail({
+      email: email,
+      subject: "Reset Password",
+      message: `please click on the link to reset your account password: ${resetPasswordUrl}`,
+    });
+    res.status(201).json({
+      success: true,
+      message: `please check your email:- ${email} to activate your account!`,
+    });
+  } catch (error) {
+    next(errorHandler(500, error.message));
+  }
+};
+export const resetpassword = async (req, res, next) => {
+  const { id, token } = req.params;
+  const { password } = req.body;
+  try {
+    const verifyUser = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    if (!verifyUser) return next(errorHandler(404, "User not found!"));
+
+    const hashedPassword = bcryptjs.hashSync(password, 10);
+    await User.findByIdAndUpdate({ _id: id }, { password: hashedPassword });
+    res.status(201).json({
+      success: true,
+      message: "Password Changed Successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
