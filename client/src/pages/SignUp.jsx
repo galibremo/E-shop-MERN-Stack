@@ -4,7 +4,11 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 export default function SignUp() {
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    name:"",
+    email:"",
+    password:""
+  });
   const [loading, setLoading] = useState(false);
 
   function handleChange(event) {
@@ -22,10 +26,15 @@ export default function SignUp() {
       .then((res) => {
         setLoading(false);
         toast.success(res.data.message);
-        setFormData({});
       })
       .catch((error) => {
+        setLoading(false);
         toast.error(error.response.data.message);
+      });
+      setFormData({
+        name:"",
+        email:"",
+        password:""
       });
   }
   return (
@@ -61,6 +70,7 @@ export default function SignUp() {
             type="name"
             placeholder="name"
             id="name"
+            value={formData.name}
           />
           <input
             onChange={handleChange}
@@ -68,6 +78,7 @@ export default function SignUp() {
             type="email"
             placeholder="email"
             id="email"
+            value={formData.email}
           />
           <input
             onChange={handleChange}
@@ -75,6 +86,7 @@ export default function SignUp() {
             type="password"
             placeholder="password"
             id="password"
+            value={formData.password}
           />
           <Link to={"/forgetpassword"}>
             <span className="text-blue-700 hover:underline">
