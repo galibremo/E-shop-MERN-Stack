@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [successMsg, setSuccessMsg] = useState("");
 
   function handleChange(event) {
     const { id, value } = event.target;
@@ -15,30 +14,19 @@ export default function SignUp() {
       [id]: value,
     });
   }
-  async function handleSubmit(e) {
+  function handleSubmit(e) {
     e.preventDefault();
-    try {
-      setLoading(true);
-      const response = await axios.post("/api/auth/signup", formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = response.data;
-      if (!data.success) {
+    setLoading(true);
+    axios
+      .post("/api/auth/signup", formData)
+      .then((res) => {
         setLoading(false);
-        setError(data.message);
-        return;
-      } 
-      else {
-        setSuccessMsg(data.message);
-      }
-      setLoading(false);
-      setError(null);
-    } catch (error) {
-      setLoading(false);
-      setError(error.message);
-    }
+        toast.success(res.data.message);
+        setFormData({});
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message);
+      });
   }
   return (
     <div className="min-h-screen flex flex-col sm:flex-row justify-center p-5 font-mono gap-5 max-w-7xl mx-auto">
@@ -50,7 +38,10 @@ export default function SignUp() {
           To keep connected with us please <br /> login with your account
         </p>
         <Link to={"/sign-in"}>
-          <button type="button" className="border-2 border-white p-3 rounded-lg uppercase hover:opacity-80">
+          <button
+            type="button"
+            className="border-2 border-white p-3 rounded-lg uppercase hover:opacity-80"
+          >
             Sign in
           </button>
         </Link>
@@ -97,9 +88,6 @@ export default function SignUp() {
             {loading ? "Loading..." : "Sign Up"}
           </button>
         </form>
-        {error && <p className="text-red-500 mt-5">{error}</p>}
-      
-        {successMsg && <p className="text-green-500 mt-5">{successMsg}</p>}
       </div>
     </div>
   );
