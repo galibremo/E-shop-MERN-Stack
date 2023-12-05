@@ -88,11 +88,6 @@ export default function SignUp() {
             id="password"
             value={formData.password}
           />
-          <Link to={"/forgetpassword"}>
-            <span className="text-blue-700 hover:underline">
-              Forget Password
-            </span>
-          </Link>
           <button
             disabled={loading}
             className="bg-slate-500 p-3 rounded-lg uppercase hover:opacity-90 text-white"
