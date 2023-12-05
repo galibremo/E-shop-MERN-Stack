@@ -1,10 +1,9 @@
 import { useState } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 export default function Forgetpassword() {
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(null);
-  const [successMail, setsuccessMail] = useState(null);
   const [loading, setLoading] = useState(false);
 
   function handleChange(event) {
@@ -14,28 +13,19 @@ export default function Forgetpassword() {
       [id]: value,
     });
   }
-  async function handleSubmit(event) {
+  function handleSubmit(event) {
     event.preventDefault();
-    try {
-      setLoading(true);
-      const response = await axios.post("/api/auth/forgetpassword", formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = response.data;
-      if (!data.success) {
+    setLoading(true);
+    axios
+      .post("/api/auth/forgetpassword", formData)
+      .then((res) => {
         setLoading(false);
-        setError(data.message);
-        return;
-      }
-      setLoading(false);
-      setError(null);
-      setsuccessMail(data.message);
-    } catch (error) {
-      setLoading(false);
-      setError(error.message);
-    }
+        toast.success(res.data.message);
+      })
+      .catch((error) => {
+        setLoading(false);
+        toast.error(error.response.data.message);
+      });
   }
 
   return (
@@ -58,11 +48,6 @@ export default function Forgetpassword() {
           {loading ? "Loading..." : "Send"}
         </button>
       </form>
-      {error || successMail ? (
-        <p className={`text-${error ? "red-500" : "green-500"} mt-5`}>
-          {error || successMail}
-        </p>
-      ) : null}
     </div>
   );
 }

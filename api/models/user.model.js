@@ -68,5 +68,9 @@ userSchema.methods.getJwtToken = function() {
   });
 };
 
+userSchema.methods.comparePassword = async function (enteredPassword) {
+  return await bcryptjs.compareSync(enteredPassword, this.password);
+};
+
 const User = mongoose.model('User',userSchema);
 export default User;

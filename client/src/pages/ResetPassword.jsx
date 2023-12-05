@@ -1,14 +1,12 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-
+import { toast } from "react-toastify";
 
 export default function Resetpassword() {
   const [formData, setFormData] = useState();
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
-  const {id,token}=useParams();
+  const { id, token } = useParams();
 
   function handleChange(event) {
     const { id, value } = event.target;
@@ -17,28 +15,20 @@ export default function Resetpassword() {
       [id]: value,
     });
   }
-  async function handleSubmit(event) {
+  function handleSubmit(event) {
     event.preventDefault();
-    try {
-      setLoading(true);
-      const response = await axios.post(`/api/auth/resetpassword/${id}/${token}`,formData);
-      const data = response.data;
-      if (!data.success) {
-        setError(data.message);
+    setLoading(true);
+    axios
+      .post(`/api/auth/resetpassword/${id}/${token}`, formData)
+      .then((res) => {
         setLoading(false);
-        return;
-      }
-      else {
-        setSuccess(data.message);
-      }
-      setLoading(false);
-      setError(null);
-    } catch (error) {
-      setLoading(false);
-      setError(error.message);
-    }
+        toast.success(res.data.message);
+      })
+      .catch((error) => {
+        setLoading(false);
+        toast.error(error.response.data.message);
+      });
   }
-
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl text-center font-semibold my-7">
@@ -59,11 +49,6 @@ export default function Resetpassword() {
           {loading ? "Updating..." : "Update"}
         </button>
       </form>
-      {error || success ? (
-        <p className={`text-${error ? "red-500" : "green-500"} mt-5`}>
-          {error || success}
-        </p>
-      ) : null}
     </div>
   );
 }
