@@ -114,9 +114,21 @@ export const signin = async (req, res, next) => {
     if (!validUser) return next(errorHandler(404, "User not found!"));
     const validPassword = await validUser.comparePassword(password);
     if (!validPassword) return next(errorHandler(401, "Wrong credentials!"));
-    const WithoutPassword = await User.findOne({email});
-    sendToken(WithoutPassword,200,res);
+    sendToken(validUser,200,res);
   } catch (error) {
     next(error);
   }
 };
+
+export const getuser= catchAsyncErrors(async (req,res,next)=>{
+  try {
+    const user = await User.findById(req.user.id);
+    if(!user) return next(errorHandler(404,"User doesn't exists"));
+    res.status(200).json({
+      success:true,
+      user,
+    });
+  } catch (error) {
+    next(error.message);
+  }
+});

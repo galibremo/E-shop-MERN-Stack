@@ -2,16 +2,24 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Activation from "./pages/Activation";
+import HomePage from "./pages/HomePage";
 import ForgetPassword from "./pages/ForgetPassword";
 import ResetPassword from "./pages/ResetPassword";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useEffect } from "react";
+import { store } from "./redux/store";
+import { loadUser } from "./redux/actions/userAction";
 
 
 export default function App() {
+  useEffect(()=>{
+    store.dispatch(loadUser());
+  },[]);
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<HomePage />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/activation/:activation_token" element={<Activation />} />

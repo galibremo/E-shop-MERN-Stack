@@ -19,20 +19,20 @@ export default function SignIn() {
       [id]: value,
     });
   }
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
-    axios
-      .post("/api/auth/signin", formData)
+    await axios
+      .post("/api/auth/signin", formData, { withCredentials: true })
       .then((res) => {
         setLoading(false);
-        toast.success(res.data.message);
-        navigate("/");
+        toast.success("Login Success!");
+        navigate("/"); 
       })
       .catch((error) => {
         setLoading(false);
         toast.error(error.response.data.message);
-      });    
+      });
   }
   return (
     <div className="min-h-screen flex flex-col sm:flex-row justify-center p-5 font-mono gap-5 max-w-7xl mx-auto">
