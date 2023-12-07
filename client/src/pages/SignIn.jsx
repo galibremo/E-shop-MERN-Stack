@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { store } from "../redux/store";
+import  {loadUser} from "../redux/actions/userAction";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({
@@ -27,6 +29,7 @@ export default function SignIn() {
       .then((res) => {
         setLoading(false);
         toast.success("Login Success!");
+        store.dispatch(loadUser());
         navigate("/"); 
       })
       .catch((error) => {
