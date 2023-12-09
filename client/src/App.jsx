@@ -7,6 +7,8 @@ import ForgetPassword from "./pages/ForgetPassword";
 import ResetPassword from "./pages/ResetPassword";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import PrivateRoute from "./components/PrivateRoute";
+import Profile from "./pages/Profile";
 
 
 
@@ -21,6 +23,9 @@ export default function App() {
         <Route path="/activation/:activation_token" element={<Activation />} />
         <Route path="/forgetpassword" element={<ForgetPassword />} />
         <Route path="/resetpassword/:id/:token" element={<ResetPassword />} />
+        <Route element={<PrivateRoute />}>
+          <Route path="/profile" element={<Profile />} />
+        </Route>
       </Routes>
       <ToastContainer
         position="bottom-center"

@@ -38,7 +38,7 @@ export default function SignIn() {
       });
   }
   return (
-    <div className="min-h-screen flex flex-col sm:flex-row justify-center p-5 font-mono gap-5 max-w-7xl mx-auto">
+    <div className="min-h-screen flex flex-col sm:flex-row justify-center p-5 gap-5 max-w-7xl mx-auto">
       <div className="bg-slate-400 flex flex-col justify-center w-full gap-5 p-5 text-white items-center">
         <h1 className="font-semibold text-3xl sm:text-4xl text-center">
           Welcome Back!
@@ -87,7 +87,7 @@ export default function SignIn() {
             disabled={loading}
             className="bg-slate-500 p-3 rounded-lg uppercase hover:opacity-90 text-white"
           >
-            {loading ? "Loading..." : "Sign Ip"}
+            {loading ? "Loading..." : "Sign In"}
           </button>
         </form>
       </div>

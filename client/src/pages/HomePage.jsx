@@ -1,7 +1,10 @@
-import React from 'react'
+import React from "react";
+import Header from "../components/Layout/Header";
 
 export default function HomePage() {
   return (
-    <div>HomePage</div>
-  )
+    <div>
+      <Header activeHeading={1}/>
+    </div>
+  );
 }

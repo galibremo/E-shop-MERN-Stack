@@ -38,7 +38,7 @@ export default function SignUp() {
       });
   }
   return (
-    <div className="min-h-screen flex flex-col sm:flex-row justify-center p-5 font-mono gap-5 max-w-7xl mx-auto">
+    <div className="min-h-screen flex flex-col sm:flex-row justify-center p-5 gap-5 max-w-7xl mx-auto">
       <div className="bg-slate-400 flex flex-col justify-center w-full gap-5 p-5 text-white items-center">
         <h1 className="font-semibold text-3xl sm:text-4xl text-center">
           Welcome Back!
