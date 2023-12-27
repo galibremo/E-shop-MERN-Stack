@@ -7,11 +7,11 @@ import ForgetPassword from "./pages/ForgetPassword";
 import ResetPassword from "./pages/ResetPassword";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import PrivateRoute from "./components/PrivateRoute";
-import Profile from "./pages/Profile";
-
-
-
+import ProductsPage from "./pages/ProductsPage";
+import BestSellingPage from "./pages/BestSellingPage";
+import EventsPage from "./pages/EventsPage";
+import FAQPage from "./pages/FAQPage";
+import ProductDetailsPage from "./pages/ProductDetailsPage";
 
 export default function App() {
   return (
@@ -23,9 +23,11 @@ export default function App() {
         <Route path="/activation/:activation_token" element={<Activation />} />
         <Route path="/forgetpassword" element={<ForgetPassword />} />
         <Route path="/resetpassword/:id/:token" element={<ResetPassword />} />
-        <Route element={<PrivateRoute />}>
-          <Route path="/profile" element={<Profile />} />
-        </Route>
+        <Route path="/products" element={<ProductsPage/>}/>
+        <Route path="/product/:name" element={<ProductDetailsPage/>}/>
+        <Route path="/best-selling" element={<BestSellingPage/>}/>
+        <Route path="/events" element={<EventsPage/>}/>
+        <Route path="/faq" element={<FAQPage/>}/>
       </Routes>
       <ToastContainer
         position="bottom-center"

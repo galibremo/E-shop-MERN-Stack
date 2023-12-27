@@ -14,13 +14,17 @@ import {
   AiOutlineShoppingCart,
 } from "react-icons/ai";
 import { CgProfile } from "react-icons/cg";
+import Cart from "../Cart";
+import Wishlist from "../Wishlist";
 
 export default function Header({ activeHeading }) {
   const [active, setActive] = useState(false);
   const [dropDown, setDropDown] = useState(false);
-  const { currentUser } = useSelector((state) => state.user);
+  const { isAuthenticated, currentUser } = useSelector((state) => state.user);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchData, setSearchData] = useState(null);
+  const [openCart, setOpenCart] = useState(false);
+  const [openWishlist, setOpenWishlist] = useState(false);
   const navigate = useNavigate();
 
   function handleSearchChange(e) {
@@ -55,17 +59,18 @@ export default function Header({ activeHeading }) {
             placeholder="Search..."
             className="bg-transparent text-black w-full border-2 p-2  rounded-md"
             value={searchTerm}
+            name="searchTerm"
             onChange={handleSearchChange}
           />
           <FaSearch className="text-slate-600 absolute right-2 top-3.5 cursor-pointer" />
           {searchTerm && searchData.length !== 0 ? (
-            <div className="absolute min-h-[30vh] bg-slate-50 shadow-sm p-4 text-black w-full">
+            <div className="absolute min-h-[30vh] bg-slate-50 shadow-sm p-4 text-black w-full z-[9]">
               {searchData &&
                 searchData.map((i, index) => {
                   const d = i.name;
                   const product_name = d.replace(/\s+/g, "-");
                   return (
-                    <Link to={`/product/${product_name}`}>
+                    <Link key={index} to={`/product/${product_name}`}>
                       <div className="w-full flex py-1">
                         <img
                           src={`${i.image_Url[0].url}`}
@@ -98,67 +103,81 @@ export default function Header({ activeHeading }) {
       <div
         className={`${
           active === true ? "shadow-sm fixed top-0 left-0 z-10" : null
-        } transition hidden lg:block bg-slate-500 h-[80px]`}
+        } transition hidden lg:flex items-center justify-between w-full bg-[#3321c8] h-[70px]`}
       >
-        <div className="max-w-[90rem] mx-auto h-[100%] p-4">
-          <div className="h-[100%] relative flex justify-between items-center">
-            <BiMenuAltLeft size={30} className="absolute" />
-            <button className="h-[100%] bg-white font-sans text-lg font-[500] select-none rounded-t-lg w-[270px] text-left pl-10">
-              All Category
-            </button>
-            <IoIosArrowDown
-              size={20}
-              className="absolute left-[240px] cursor-pointer"
-              onClick={() => setDropDown(!dropDown)}
-            />
-            {dropDown ? (
-              <DropDown
-                categoriesData={categoriesData}
-                setDropDown={setDropDown}
+        <div className="w-[90rem] mx-auto relative  flex items-center justify-between">
+          <div onClick={() => setDropDown(!dropDown)}>
+            <div className="relative h-[60px] mt-[10px] w-[270px] hidden xl:block">
+              <BiMenuAltLeft size={30} className="absolute top-3 left-2" />
+              <button className="h-[100%] w-full flex justify-between items-center pl-10 bg-white font-sans text-lg font-[500] select-none rounded-t-md">
+                All Category
+              </button>
+              <IoIosArrowDown
+                size={20}
+                className="absolute right-2 top-4 cursor-pointer"
+                onClick={() => setDropDown(!dropDown)}
               />
-            ) : null}
-            {/* navitem */}
-            <div>
-              <Navbar active={activeHeading} />
+              {dropDown ? (
+                <DropDown
+                  categoriesData={categoriesData}
+                  setDropDown={setDropDown}
+                />
+              ) : null}
+            </div>
+          </div>
+          {/* navitem */}
+          <div>
+            <Navbar active={activeHeading} />
+          </div>
+
+          <div className="flex">
+            <div className="flex">
+              <div className="relative cursor-pointer mr-[15px]"
+              onClick={()=> setOpenWishlist(true)}
+              >
+                <AiOutlineHeart size={30} color="rgb(255 255 255 / 83%)" />
+                <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px] leading-tight text-center">
+                  0
+                </span>
+              </div>
             </div>
 
             <div className="flex">
-              <div className="flex">
-                <div
-                  className="relative cursor-pointer mr-[15px]"
-                >
-                  <AiOutlineHeart size={30} color="rgb(255 255 255 / 83%)" />
-                  <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px] leading-tight text-center">
-                  0
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex">
-                <div
-                  className="relative cursor-pointer mr-[15px]"
-                >
-                  <AiOutlineShoppingCart
-                    size={30}
-                    color="rgb(255 255 255 / 83%)"
-                  />
-                  <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px] leading-tight text-center">
+              <div
+                className="relative cursor-pointer mr-[15px]"
+                onClick={() => setOpenCart(true)}
+              >
+                <AiOutlineShoppingCart
+                  size={30}
+                  color="rgb(255 255 255 / 83%)"
+                />
+                <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px] leading-tight text-center">
                   1
-                  </span>
-                </div>
+                </span>
               </div>
-              <div className="flex">
-              <div className="relative cursor-pointer mr-[15px]">                
+            </div>
+            <div className="flex">
+              <div className="relative cursor-pointer mr-[15px]">
+                {isAuthenticated ? (
+                  <Link to="/profile">
+                    <img
+                      src={currentUser.avatar}
+                      alt=""
+                      className="w-[30px] h-[30px] rounded-full object-cover"
+                    />
+                  </Link>
+                ) : (
                   <Link to="/sign-in">
                     <CgProfile size={30} color="rgb(255 255 255 / 83%)" />
                   </Link>
+                )}
               </div>
             </div>
-            </div>
+            {openCart ? <Cart setOpenCart={setOpenCart} /> : null}
+            {openWishlist ? <Wishlist setOpenWishlist={setOpenWishlist} /> : null}
           </div>
         </div>
       </div>
-      {/* 2nd header */}
     </header>
   );
 }

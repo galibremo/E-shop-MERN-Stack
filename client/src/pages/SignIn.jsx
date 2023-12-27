@@ -1,18 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { store } from "../redux/store";
-import  {loadUser} from "../redux/actions/userAction";
+import { loadUser } from "../redux/actions/userAction";
+import { useSelector } from "react-redux";
 
 export default function SignIn() {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useSelector((state) => state.user);
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, []);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [loading, setLoading] = useState(false);
-
-  const navigate = useNavigate();
 
   function handleChange(event) {
     const { id, value } = event.target;
@@ -30,7 +37,7 @@ export default function SignIn() {
         setLoading(false);
         toast.success("Login Success!");
         store.dispatch(loadUser());
-        navigate("/"); 
+        navigate("/");
       })
       .catch((error) => {
         setLoading(false);
