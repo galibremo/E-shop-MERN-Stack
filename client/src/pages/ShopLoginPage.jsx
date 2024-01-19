@@ -1,18 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { store } from "../redux/store";
-import { loadUser } from "../redux/actions/userAction";
+import { loadSeller } from "../redux/actions/userAction";
 
-export default function SignIn() {
+export default function ShopLoginPage() {
   const navigate = useNavigate();
-  // const { isAuthenticated } = useSelector((state) => state.user);
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     navigate("/");
-  //   }
-  // }, []);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -31,10 +25,10 @@ export default function SignIn() {
     e.preventDefault();
     setLoading(true);
     await axios
-      .post("/api/auth/signin", formData, { withCredentials: true })
+      .post("/api/shop/shop-login", formData, { withCredentials: true })
       .then((res) => {
         setLoading(false);
-        store.dispatch(loadUser());
+        store.dispatch(loadSeller());
         toast.success("Login Success!");
         navigate("/");
       })
@@ -52,18 +46,18 @@ export default function SignIn() {
         <p className="text-center font-semibold text-lg">
           If you don't have an account <br /> please register
         </p>
-        <Link to={"/sign-up"}>
+        <Link to={"/shop-create"}>
           <button
             type="button"
             className="border-2 border-white p-3 rounded-lg uppercase hover:opacity-80"
           >
-            Sign Up
+            Register Shop
           </button>
         </Link>
       </div>
       <div className="flex flex-col justify-center w-full gap-5 p-5">
         <h1 className="font-semibold text-2xl sm:text-3xl text-center text-slate-500">
-          Log In
+          Shop LogIn
         </h1>
         <form
           onSubmit={handleSubmit}

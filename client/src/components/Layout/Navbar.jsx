@@ -4,20 +4,18 @@ import { navItems } from "../../static/data";
 
 export default function Navbar({ active }) {
   return (
-    <div className="flex">
+    <div className="block lg:flex mt-0 lg:mt-8">
       {navItems &&
         navItems.map((i, index) => (
-          <div key={i.id}>
-            <Link
-              to={i.url}
-              className={`${
-                active === index + 1
-                  ? "text-[#17dd1f]"
-                  : "text-black 800px:text-[#fff]"
-              } pb-[30px] 800px:pb-0 font-[500] px-6 cursor-pointer}`}
-            >
-              {i.title}
-            </Link>
+          <div
+            key={i.id}
+            className={`${
+              active === index + 1
+                ? "text-[#17dd1f]"
+                : "text-black lg:text-[#fff]"
+            } pb-[30px] font-[500] px-6 cursor-pointer`}
+          >
+            <Link to={i.url}>{i.title}</Link>
           </div>
         ))}
     </div>
