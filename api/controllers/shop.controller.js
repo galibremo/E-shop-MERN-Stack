@@ -72,7 +72,7 @@ export const activation = catchAsyncErrors(async (req, res, next) => {
       address,
       zipCode,
     });
-    sendToken(shop, 201, res);
+    sendShopToken(shop, 201, res);
   } catch (error) {
     return next(errorHandler(500, error.message));
   }

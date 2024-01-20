@@ -4,15 +4,16 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { store } from "../redux/store";
 import { loadUser } from "../redux/actions/userAction";
+import { useSelector } from 'react-redux';
 
 export default function SignIn() {
   const navigate = useNavigate();
-  // const { isAuthenticated } = useSelector((state) => state.user);
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     navigate("/");
-  //   }
-  // }, []);
+  const { isAuthenticated } = useSelector((state) => state.user);
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, []);
 
   const [formData, setFormData] = useState({
     email: "",

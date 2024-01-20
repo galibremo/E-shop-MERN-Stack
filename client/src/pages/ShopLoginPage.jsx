@@ -1,12 +1,20 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { store } from "../redux/store";
 import { loadSeller } from "../redux/actions/userAction";
+import { useSelector } from "react-redux";
+
 
 export default function ShopLoginPage() {
   const navigate = useNavigate();
+  const { isSeller } = useSelector((state) => state.seller);
+  useEffect(() => {
+    if (isSeller) {
+      navigate("/shop/:id");
+    }
+  }, []);
 
   const [formData, setFormData] = useState({
     email: "",

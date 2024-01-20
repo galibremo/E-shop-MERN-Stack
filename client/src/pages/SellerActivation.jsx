@@ -14,12 +14,10 @@ export default function SellerActivation() {
           .post("/api/shop/activation", {
             activation_token,
           })
-          .then((response) => {
-            console.log(response.data);
+          .then((response) => {            
           })
           .catch((error) => {
             setError(error.response.data.message);
-            console.log(error.response.data.message);
           });
       };
       sendRequest();
