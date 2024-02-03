@@ -140,3 +140,64 @@ export const logout = catchAsyncErrors(async (req, res, next) => {
     next(error);
   }
 });
+export const updateUserInfo = catchAsyncErrors(async (req, res, next) => {
+  if (req.user.id !== req.params.id) {
+    return next(errorHandler(401, "You can only update your own account!"));
+  }
+
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (user.addresses.length === 0) {
+      // If addresses array is empty, use $push to add a new element
+      const updatedUser = await User.findByIdAndUpdate(
+        req.params.id,
+        {
+          $set: {
+            name: req.body.name,
+            email: req.body.email,
+            phoneNumber: req.body.phoneNumber,
+            avatar: req.body.avatar,
+          },
+          $push: {
+            addresses: {
+              address1: req.body.address1,
+              address2: req.body.address2,
+              zipCode: req.body.zipCode,
+            },
+          },
+        },
+        { new: true, upsert: true }
+      );
+
+      res.status(200).json(updatedUser);
+    } else {
+      // If addresses array is not empty, use $set to update the existing element
+      const user = await User.findById(req.params.id);
+      const { addresses: [{ _id: addressId }] } = user;
+
+      const updatedUser = await User.findOneAndUpdate(
+        {
+          _id: req.params.id,
+          'addresses._id': addressId.toString(), 
+        },
+        {
+          $set: {
+            'addresses.$.address1': req.body.address1,
+            'addresses.$.address2': req.body.address2,
+            'addresses.$.zipCode': req.body.zipCode,
+            name: req.body.name,
+            email: req.body.email,
+            phoneNumber: req.body.phoneNumber,
+            avatar: req.body.avatar,
+          },
+        },
+        { new: true }
+      );
+
+      res.status(200).json(updatedUser);
+    }
+  } catch (error) {
+    next(error);
+  }
+});

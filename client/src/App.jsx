@@ -20,6 +20,12 @@ import SellerActivation from "./pages/SellerActivation";
 import ShopLoginPage from "./pages/ShopLoginPage";
 import ShopHomePage from "./pages/ShopHomePage";
 import SellerPrivateRoute from "./SellerPrivateRoute";
+import ShopDashboardPage from "./pages/ShopDashboardPage";
+import ShopAllOrders from "./pages/ShopAllOrders";
+import ShopCreateProduct from "./pages/ShopCreateProduct";
+import ShopAllProducts from "./pages/ShopAllProducts";
+import ShopAllEvents from "./pages/ShopAllEvents";
+import ShopCreateEvent from "./pages/ShopCreateEvent";
 
 export default function App() {
   return (
@@ -40,17 +46,23 @@ export default function App() {
         <Route path="/best-selling" element={<BestSellingPage />} />
         <Route path="/events" element={<EventsPage />} />
         <Route path="/faq" element={<FAQPage />} />
+        {/* user private route */}
+        <Route element={<PrivateRoute />}>
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+        </Route>
         {/* shop route */}
         <Route path="/shop-create" element={<ShopCreatePage />} />
         <Route path="/shop-login" element={<ShopLoginPage />} />
         {/* shop private route */}
         <Route element={<SellerPrivateRoute />}>
           <Route path="/shop/:id" element={<ShopHomePage />} />
-        </Route>
-        {/* user private route */}
-        <Route element={<PrivateRoute />}>
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/dashboard" element={<ShopDashboardPage />} />
+          <Route path="/dashboard-orders" element={<ShopAllOrders />} />
+          <Route path="/dashboard-products" element={<ShopAllProducts />} />
+          <Route path="/dashboard-create-product" element={<ShopCreateProduct />} />
+          <Route path="/dashboard-events" element={<ShopAllEvents />} />
+          <Route path="/dashboard-create-event" element={<ShopCreateEvent />} />
         </Route>
       </Routes>
       <ToastContainer

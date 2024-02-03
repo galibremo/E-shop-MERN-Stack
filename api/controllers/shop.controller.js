@@ -101,3 +101,12 @@ export const getshop = catchAsyncErrors(async (req, res, next) => {
     next(error.message);
   }
 });
+
+export const logout = catchAsyncErrors(async (req, res, next) => {
+  try {
+    res.clearCookie("seller_token");
+    res.status(200).json("shop has been logged out!");
+  } catch (error) {
+    next(error);
+  }
+});

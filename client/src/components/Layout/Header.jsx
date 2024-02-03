@@ -22,6 +22,7 @@ export default function Header({ activeHeading }) {
   const [active, setActive] = useState(false);
   const [dropDown, setDropDown] = useState(false);
   const { isAuthenticated, currentUser } = useSelector((state) => state.user);
+  const { isSeller } = useSelector((state) => state.seller);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchData, setSearchData] = useState(null);
   const [openCart, setOpenCart] = useState(false);
@@ -91,9 +92,9 @@ export default function Header({ activeHeading }) {
 
         {/* seller */}
         <div className="bg-black rounded-md p-2">
-          <Link to="/shop-create">
+          <Link to={`${isSeller ? "/dashboard" : "/shop-create"}`}>
             <h1 className="text-[#fff] flex items-center">
-              Become Seller
+              {isSeller ? "Go Dashboard" : "Become Seller"}{" "}
               <IoIosArrowForward className="ml-1" />
             </h1>
           </Link>
@@ -291,7 +292,7 @@ export default function Header({ activeHeading }) {
                     <div>
                       <Link to="/profile">
                         <img
-                          src={currentUser.avatar}
+                          src={currentUser?.avatar}
                           alt=""
                           className="w-[60px] h-[60px] rounded-full border-[3px] border-[#0eae88]"
                         />

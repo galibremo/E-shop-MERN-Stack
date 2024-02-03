@@ -6,11 +6,17 @@ import {
   signOutUserStart,
   signOutUserSuccess,
   signOutUserFailure,
+  updateUserInfoRequest,
+  updateUserInfoSuccess,
+  updateUserInfoFailed,
 } from "../reducers/userSlice";
 import {
   LoadSellerRequest,
   LoadSellerSuccess,
   LoadSellerFail,
+  signOutSellerStart,
+  signOutSellerSuccess,
+  signOutSellerFailure,
 } from "../reducers/sellerSlice";
 
 export const loadUser = () => async (dispatch) => {
@@ -30,7 +36,7 @@ export const signOutUser = () => async (dispatch) => {
     const { data } = await axios.get("api/auth/logout", {
       withCredentials: true,
     });
-    dispatch(signOutUserSuccess(data.user));    
+    dispatch(signOutUserSuccess(data.user));
   } catch (error) {
     dispatch(signOutUserFailure(error.response.data.message));
   }
@@ -61,8 +67,33 @@ export const loadSeller = () => async (dispatch) => {
       withCredentials: true,
     });
     dispatch(LoadSellerSuccess(data.shop));
-    
   } catch (error) {
     dispatch(LoadSellerFail(error.response.data.message));
+  }
+};
+export const updateUserInfo = (formData, id) => async (dispatch) => {
+  try {
+    dispatch(updateUserInfoRequest());
+    const { data } = await axios.put(
+      `api/auth/update-user-info/${id}`,
+      formData,
+      {
+        withCredentials: true,
+      }
+    );
+    dispatch(updateUserInfoSuccess(data));
+  } catch (error) {
+    dispatch(updateUserInfoFailed(error.response.data.message));
+  }
+};
+export const signOutSeller = () => async (dispatch) => {
+  try {
+    dispatch(signOutSellerStart());
+    const { data } = await axios.get("/api/shop/shop-logout", {
+      withCredentials: true,
+    });
+    dispatch(signOutSellerSuccess(data.seller));
+  } catch (error) {
+    dispatch(signOutSellerFailure(error.response.data.message));
   }
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   AiOutlineArrowRight,
@@ -11,70 +11,134 @@ import { Button } from "@mui/material";
 import { Link } from "react-router-dom";
 import { MdTrackChanges } from "react-icons/md";
 import { RxCross1 } from "react-icons/rx";
+import {
+  getStorage,
+  uploadBytesResumable,
+  ref,
+  getDownloadURL,
+} from "firebase/storage";
+import { app } from "../firebase.js";
+import { updateUserInfo } from "../redux/actions/userAction.js";
+import { toast } from "react-toastify";
 
 export default function ProfileContent({ active }) {
-  const { currentUser } = useSelector((state) => state.user);
-  const [name, setName] = useState(currentUser && currentUser.name);
-  const [email, setEmail] = useState(currentUser && currentUser.email);
-  const [phoneNumber, setPhoneNumber] = useState();
-  const [zipcode, setZipCode] = useState();
-  const [address1, setAddress1] = useState("");
-  const [address2, setAddress2] = useState("");
-  const [avatar, setAvatar] = useState(null);
+  const { currentUser, loading, error } = useSelector((state) => state.user);
+  const [formData, setFormData] = useState({});
+  const [imageFile, setImageFile] = useState(undefined);
+  const [filePerc, setFilePerc] = useState(0);
+  const [fileUploadError, setFileUploadError] = useState(false);
   const dispatch = useDispatch();
 
-  function handleImage() {}
-
+  useEffect(() => {
+    if (imageFile) {
+      handleFileUpload(imageFile);
+    }
+  }, [imageFile]);
+  function handleFileUpload(imageFile) {
+    const storage = getStorage(app);
+    const fileName = new Date().getTime + imageFile.name;
+    const storageRef = ref(storage, fileName);
+    const uploadTask = uploadBytesResumable(storageRef, imageFile);
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setFilePerc(Math.round(progress));
+      },
+      (error) => {
+        setFileUploadError(true);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          setFormData({ ...formData, avatar: downloadURL });
+        });
+      }
+    );
+  }
+  function handleChange(event) {
+    const { id, value } = event.target;
+    setFormData({
+      ...formData,
+      [id]: value,
+    });
+  }
   function handleSubmit(e) {
     e.preventDefault();
+    dispatch(updateUserInfo(formData, currentUser._id))
+      .then(() => {
+        toast.success("User information updated successfully!");
+      })
+      .catch((error) => {
+        toast.error(
+          `Failed to update user information: ${error.response.data.message}`
+        );
+      });
   }
   return (
     <div className="w-full">
       {active === 1 && (
         <>
-          <div className="flex justify-center w-full">
-            <div className="relative">
-              <img
-                src={currentUser.avatar}
-                className="w-[100px] h-[100px] lg:w-[150px] lg:h-[150px] rounded-full object-cover border-[3px] border-[#3ad132]"
-                alt=""
-              />
-              <div className="w-[30px] h-[30px] bg-[#E3E9EE] rounded-full flex items-center justify-center cursor-pointer absolute bottom-[5px] right-[5px]">
-                <input
-                  type="file"
-                  id="image"
-                  className="hidden"
-                  onChange={handleImage}
+          <form onSubmit={handleSubmit}>
+            <div className="flex justify-center w-full flex-col items-center">
+              <div className="relative">
+                <img
+                  src={formData.avatar || currentUser.avatar}
+                  className="w-[100px] h-[100px] lg:w-[150px] lg:h-[150px] rounded-full object-cover border-[3px] border-[#3ad132]"
+                  alt=""
                 />
-                <label htmlFor="image">
-                  <AiOutlineCamera />
-                </label>
+                <div className="w-[30px] h-[30px] bg-[#E3E9EE] rounded-full flex items-center justify-center cursor-pointer absolute bottom-[5px] right-[5px]">
+                  <input
+                    type="file"
+                    id="image"
+                    className="hidden"
+                    onChange={(e) => setImageFile(e.target.files[0])}
+                    accept="image/*"
+                  />
+                  <label htmlFor="image">
+                    <AiOutlineCamera />
+                  </label>
+                </div>
               </div>
+              <p className="text-sm self-center mt-2">
+                {fileUploadError ? (
+                  <span className="text-red-700">
+                    Error Image upload (image must be less than 2 mb)
+                  </span>
+                ) : filePerc > 0 && filePerc < 100 ? (
+                  <span className="text-slate-700">{`Uploading ${filePerc}%`}</span>
+                ) : filePerc === 100 ? (
+                  <span className="text-green-700">
+                    Image successfully uploaded!
+                  </span>
+                ) : (
+                  ""
+                )}
+              </p>
             </div>
-          </div>
-          <br />
-          <br />
-          <div className="px-5">
-            <form onSubmit={handleSubmit} aria-required={true}>
+            <br />
+            <div className="px-5">
               <div className="w-full lg:flex block pb-3">
                 <div className=" w-[100%] lg:w-[50%]">
                   <label className="block pb-2">Full Name</label>
                   <input
+                    id="name"
                     type="text"
                     className="border p-1 rounded-[5px] w-full lg:w-[95%]  mb-2 lg:mb-0"
                     required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={handleChange}
+                    defaultValue={currentUser.name}
                   />
                 </div>
                 <div className=" w-[100%] lg:w-[50%]">
                   <label className="block pb-2">Email Address</label>
                   <input
-                    type="text"
+                    id="email"
+                    type="email"
                     className="border p-1 rounded-[5px] w-full lg:w-[95%] mb-2 lg:mb-0"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={handleChange}
+                    defaultValue={currentUser.email}
                   />
                 </div>
               </div>
@@ -83,21 +147,23 @@ export default function ProfileContent({ active }) {
                 <div className=" w-[100%] lg:w-[50%]">
                   <label className="block pb-2">Phone Number</label>
                   <input
+                    id="phoneNumber"
                     type="number"
                     className="border p-1 rounded-[5px] w-full lg:w-[95%] mb-2 lg:mb-0"
                     required
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    onChange={handleChange}
+                    defaultValue={currentUser?.phoneNumber}
                   />
                 </div>
                 <div className=" w-[100%] lg:w-[50%]">
                   <label className="block pb-2">Zip Code</label>
                   <input
+                    id="zipCode"
                     type="text"
                     className="border p-1 rounded-[5px] w-full lg:w-[95%] mb-2 lg:mb-0"
                     required
-                    value={zipcode}
-                    onChange={(e) => setZipCode(e.target.value)}
+                    onChange={handleChange}
+                    defaultValue={currentUser.addresses[0]?.zipCode}
                   />
                 </div>
               </div>
@@ -106,33 +172,34 @@ export default function ProfileContent({ active }) {
                 <div className=" w-[100%] lg:w-[50%]">
                   <label className="block pb-2">Address 1</label>
                   <input
+                    id="address1"
                     type="text"
                     className="border p-1 rounded-[5px] w-full lg:w-[95%] mb-2 lg:mb-0"
                     required
-                    value={address1}
-                    onChange={(e) => setAddress1(e.target.value)}
+                    onChange={handleChange}
+                    defaultValue={currentUser.addresses[0]?.address1}
                   />
                 </div>
                 <div className=" w-[100%] lg:w-[50%]">
                   <label className="block pb-2">Address 2</label>
                   <input
+                    id="address2"
                     type="text"
                     className="border p-1 rounded-[5px] w-full lg:w-[95%] mb-2 lg:mb-0"
                     required
-                    value={address2}
-                    onChange={(e) => setAddress2(e.target.value)}
+                    onChange={handleChange}
+                    defaultValue={currentUser.addresses[0]?.address2}
                   />
                 </div>
               </div>
-
-              <input
-                className={`w-[250px] h-[40px] border border-[#3a24db] text-center text-[#3a24db] rounded-[3px] mt-5 cursor-pointer`}
-                required
-                value="Update"
-                type="submit"
-              />
-            </form>
-          </div>
+              <button
+                disabled={loading}
+                className={`w-[250px] h-[40px] border border-[#3a24db] text-center text-[#3a24db] rounded-[3px] mt-5 cursor-pointer uppercase`}
+              >
+                {loading ? "loading..." : "update"}
+              </button>
+            </div>
+          </form>
         </>
       )}
       {/* order */}
