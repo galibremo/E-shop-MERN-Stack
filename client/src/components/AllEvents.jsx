@@ -8,10 +8,9 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Button } from "@mui/material";
 import { toast } from "react-toastify";
 import { getStorage, ref, deleteObject } from "firebase/storage";
-import { app } from "../firebase";
 
 export default function AllEvents() {
-  const { events, loading } = useSelector((state) => state.events);
+  const { events } = useSelector((state) => state.events);
   const { currentSeller } = useSelector((state) => state.seller);
 
   const dispatch = useDispatch();
@@ -20,18 +19,10 @@ export default function AllEvents() {
   }, [dispatch]);
 
   const handleDelete = async (id, imageUrls) => {
-    try {
-      await dispatch(deleteEventShop(id));
-      const storage = getStorage();
-      for (const imageUrl of imageUrls) {
-        const imageRef = ref(storage, imageUrl);
-        await deleteObject(imageRef);
-      }
-      toast.success("Event and images deleted successfully!");
+    dispatch(deleteEventShop(id, imageUrls));
+    setTimeout(() => {
       window.location.reload();
-    } catch (error) {
-      toast.error(`Failed to delete event: ${error.message}`);
-    }
+    }, 1000);
   };
 
   const columns = [

@@ -14,7 +14,6 @@ export const createEvent = catchAsyncErrors(async (req, res, next) => {
       const event = await Event.create(eventData);
       res.status(201).json({
         success: true,
-        message: "Event Created Successfully",
         event,
       });
     }

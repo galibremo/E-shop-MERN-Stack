@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { categoriesData } from "../static/data";
-import { toast } from "react-toastify";
 import {
   getDownloadURL,
   getStorage,
@@ -11,11 +10,9 @@ import {
 } from "firebase/storage";
 import { app } from "../firebase";
 import { createEvent } from "../redux/actions/eventAction.js";
-import { clearErrors } from "../redux/reducers/eventSlice.js";
 
 export default function CreateEvent() {
   const { currentSeller } = useSelector((state) => state.seller);
-  const { success, error } = useSelector((state) => state.events);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -136,14 +133,6 @@ export default function CreateEvent() {
     e.preventDefault();
     dispatch(createEvent(formData));
   }
-  useEffect(() => {
-    if (success) {
-      toast.success("Event Created Successfully!");
-    } else if (error) {
-      toast.error(error);
-      dispatch(clearErrors());
-    }
-  }, [error, success]);
 
   return (
     <div className="w-[90%] lg:w-[50%] bg-white shadow h-[90vh] rounded-[4px] p-3 overflow-y-scroll">

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { categoriesData } from "../static/data";
-import { toast } from "react-toastify";
 import {
   getDownloadURL,
   getStorage,
@@ -31,7 +30,6 @@ export default function CreateProduct() {
   });
   const [imageUploadError, setImageUploadError] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
 
   function handleImageSubmit(e) {
@@ -110,13 +108,7 @@ export default function CreateProduct() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    dispatch(createProduct(formData))
-      .then(() => {
-        toast.success("Product creted successfully!");
-      })
-      .catch((error) => {
-        toast.error(`Failed to create product: ${error.response.data.message}`);
-      });
+    dispatch(createProduct(formData));
   }
   return (
     <div className="w-[90%] lg:w-[50%] bg-white shadow h-[90vh] rounded-[4px] p-3 overflow-y-scroll">
@@ -273,7 +265,6 @@ export default function CreateProduct() {
         >
           {loading ? "Creating..." : "Create Product"}
         </button>
-        {error && <p className="text-red-700 text-sm">{error}</p>}
       </form>
     </div>
   );

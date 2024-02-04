@@ -6,12 +6,9 @@ import { AiOutlineDelete, AiOutlineEye } from "react-icons/ai";
 import { deleteProductShop } from "../redux/actions/productAction";
 import { DataGrid } from "@mui/x-data-grid";
 import { Button } from "@mui/material";
-import { toast } from "react-toastify";
-import { getStorage, ref, deleteObject } from "firebase/storage";
-import { app } from "../firebase";
 
 export default function AllProducts() {
-  const { products, loading } = useSelector((state) => state.products);
+  const { products } = useSelector((state) => state.products);
   const { currentSeller } = useSelector((state) => state.seller);
 
   const dispatch = useDispatch();
@@ -19,19 +16,11 @@ export default function AllProducts() {
     dispatch(getAllProductsShop(currentSeller._id));
   }, [dispatch]);
 
-  const handleDelete = async (id, imageUrls) => {
-    try {
-      await dispatch(deleteProductShop(id));
-      const storage = getStorage();
-      for (const imageUrl of imageUrls) {
-        const imageRef = ref(storage, imageUrl);
-        await deleteObject(imageRef);
-      }
-      toast.success("Product and images deleted successfully!");
+  const handleDelete = (id, imageUrls) => {
+    dispatch(deleteProductShop(id, imageUrls));
+    setTimeout(() => {
       window.location.reload();
-    } catch (error) {
-      toast.error(`Failed to delete product: ${error.message}`);
-    }
+    }, 1000);
   };
 
   const columns = [
