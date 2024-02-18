@@ -6,8 +6,6 @@ import { AiOutlineDelete, AiOutlineEye } from "react-icons/ai";
 import { deleteEventShop } from "../redux/actions/eventAction";
 import { DataGrid } from "@mui/x-data-grid";
 import { Button } from "@mui/material";
-import { toast } from "react-toastify";
-import { getStorage, ref, deleteObject } from "firebase/storage";
 
 export default function AllEvents() {
   const { events } = useSelector((state) => state.events);

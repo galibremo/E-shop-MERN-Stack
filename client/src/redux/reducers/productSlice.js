@@ -33,6 +33,18 @@ const productSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    getAllProductsRequest: (state) => {
+      state.loading = true;
+    },
+    getAllProductsSuccess: (state, action) => {
+      state.loading = false;
+      state.allProducts = action.payload;
+      state.error = null;
+    },
+    getAllProductsFailed: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
     deleteProductRequest: (state) => {
       state.loading = true;
     },
@@ -54,6 +66,9 @@ export const {
   getAllProductsShopRequest,
   getAllProductsShopSuccess,
   getAllProductsShopFailed,
+  getAllProductsRequest,
+  getAllProductsSuccess,
+  getAllProductsFailed,
   clearErrors,
   clearMessage,
   deleteProductRequest,

@@ -33,6 +33,18 @@ const eventSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    getAllEventsRequest: (state) => {
+      state.loading = true;
+    },
+    getAllEventsSuccess: (state, action) => {
+      state.loading = false;
+      state.allEvents = action.payload;
+      state.error = null;
+    },
+    getAllEventsFailed: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
     deleteEventRequest: (state) => {
       state.loading = true;
     },
@@ -54,6 +66,9 @@ export const {
   getAllEventsShopRequest,
   getAllEventsShopSuccess,
   getAllEventsShopFailed,
+  getAllEventsRequest,
+  getAllEventsSuccess,
+  getAllEventsFailed,
   clearErrors,
   clearMessage,
   deleteEventRequest,

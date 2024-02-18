@@ -1,24 +1,25 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Layout/Header";
 import ProductCard from "../components/ProductCard";
-import { productData } from "../static/data";
 import Footer from "../components/Layout/Footer";
+import { useSelector } from "react-redux";
+
 export default function ProductsPage() {
-  const [data, setData] = useState([]);
+  const { allProducts, isLoading } = useSelector((state) => state.products);
   const urlParams = new URLSearchParams(location.search);
   const categoryData = urlParams.get("category");
+  const [data, setData] = useState([]);
 
   useEffect(() => {
     if (categoryData === null) {
-      const d =
-        productData && productData.sort((a, b) => a.total_sell - b.total_sell);
+      const d = allProducts;
       setData(d);
     } else {
       const d =
-        productData && productData.filter((i) => i.category === categoryData);
+        allProducts && allProducts.filter((i) => i.category === categoryData);
       setData(d);
     }
-  }, []);
+  }, [allProducts]);
   return (
     <div>
       <Header activeHeading={3} />
@@ -34,7 +35,7 @@ export default function ProductsPage() {
           </h1>
         ) : null}
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 }

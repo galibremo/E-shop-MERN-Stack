@@ -3,14 +3,17 @@ import Header from "../components/Layout/Header";
 import ProductCard from "../components/ProductCard";
 import { productData } from "../static/data";
 import Footer from "../components/Layout/Footer";
+import { useSelector } from "react-redux";
+
 export default function BestSellingPage() {
+  const { allProducts } = useSelector((state) => state.products);
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    const d =
-      productData && productData.sort((a, b) => b.total_sell - a.total_sell);
-      setData(d);
-  }, []);
+    const allProductsData = allProducts ? [...allProducts] : [];
+    const sortedData = allProductsData?.sort((a, b) => b.sold_out - a.sold_out);
+    setData(sortedData);
+  }, [allProducts]);
   return (
     <div>
       <Header activeHeading={2} />
@@ -21,7 +24,7 @@ export default function BestSellingPage() {
           {data && data.map((i, index) => <ProductCard data={i} key={index} />)}
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 }

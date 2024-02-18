@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   AiFillHeart,
@@ -9,29 +9,51 @@ import {
   AiOutlineStar,
 } from "react-icons/ai";
 import ProductDetailsCard from "./ProductDetailsCard";
+import { useSelector, useDispatch } from "react-redux";
+import { addWishlist, removeWishlist } from "../redux/actions/wishlistAction";
 
 export default function ProductCard({ data }) {
+  const { cart } = useSelector((state) => state.cart);
+  const { wishlist } = useSelector((state) => state.wishlist);
+
   const [click, setClick] = useState(false);
   const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
 
-  const d = data.name;
-  const product_name = d.replace(/\s+/g, "-");
+  useEffect(() => {
+    if (wishlist && wishlist.find((i) => i._id === data._id)) {
+      setClick(true);
+    } else {
+      setClick(false);
+    }
+  }, [wishlist]);
+
+  function removeFromWishlistHandler(data) {
+    setClick(!click);
+    dispatch(removeWishlist(data));
+  }
+
+  function addToWishlistHandler(data) {
+    setClick(!click);
+    dispatch(addWishlist(data));
+  }
+
   return (
     <div className="w-full h-[370px] bg-white rounded-lg shadow-sm p-3 relative cursor-pointer">
       <div className="flex justify-end"></div>
-      <Link to={`/product/${product_name}`}>
+      <Link to={`/product/${data._id}`}>
         <img
-          src={`${data.image_Url && data.image_Url[1]?.url}`}
+          src={`${data?.imageUrls && data?.imageUrls[0]}`}
           alt=""
           className="w-full h-[170px] object-contain"
         />
       </Link>
-      <Link to="/">
-        <h4 className="pt-3 text-[15px] text-blue-400 pb-3">
+      <Link to={`/shop/preview/${data?.shop._id}`}>
+        <h5 className="pt-3 text-[15px] text-blue-400 pb-3">
           {data.shop.name}
-        </h4>
+        </h5>
       </Link>
-      <Link to={`/product/${product_name}`}>
+      <Link to={`/product/${data._id}`}>
         <h4 className="pb-3 font-[500]">
           {data.name.length > 40 ? data.name.slice(0, 40) + "..." : data.name}
         </h4>
@@ -46,14 +68,17 @@ export default function ProductCard({ data }) {
         <div className="py-2 flex items-center justify-between">
           <div className="flex">
             <h5 className="font-bold text-[18px] text-[#333] font-Roboto">
-              {data.discount_price}$
+              {data.originalPrice === 0
+                ? data.originalPrice
+                : data.discountPrice}
+              $
             </h5>
             <h4 className="font-[500] text-[16px] text-[#d55b45] pl-3 mt-[-4px] line-through">
-              {data.price}$
+              {data.originalPrice ? data.originalPrice + " $" : null}$
             </h4>
           </div>
           <span className="font-[400] text-[17px] text-[#68d284]">
-            {data.total_sell} sold
+            {data?.sold_out} sold
           </span>
         </div>
       </Link>
@@ -62,7 +87,7 @@ export default function ProductCard({ data }) {
           <AiFillHeart
             size={22}
             className="cursor-pointer absolute right-2 top-5"
-            onClick={() => setClick(!click)}
+            onClick={() => removeFromWishlistHandler(data._id)}
             color={click ? "red" : "#333"}
             title="Remove from wishlist"
           />
@@ -70,7 +95,7 @@ export default function ProductCard({ data }) {
           <AiOutlineHeart
             size={22}
             className="cursor-pointer absolute right-2 top-5"
-            onClick={() => setClick(!click)}
+            onClick={() => addToWishlistHandler(data)}
             color={click ? "red" : "#333"}
             title="Add to wishlist"
           />

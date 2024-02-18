@@ -1,18 +1,19 @@
 import React from "react";
 import DashboardHeader from "../components/ShopLayout/DashboardHeader";
 import DashboardSideBar from "../components/ShopLayout/DashboardSideBar";
-import DashboardHero from "../components/DashboardHero";
-import ShopData from "../components/ShopProfileData";
+import AllCoupons from "../components/AllCoupons";
 
-export default function ShopDashboardPage() {
+export default function ShopAllCoupons() {
   return (
     <div>
       <DashboardHeader />
-      <div className="flex items-start justify-between w-full">
+      <div className="flex justify-between w-full">
         <div className="w-[80px] lg:w-[330px]">
-          <DashboardSideBar active={1} />
+          <DashboardSideBar active={9} />
         </div>
-        <DashboardHero />
+        <div className="w-full justify-center flex">
+          <AllCoupons />
+        </div>
       </div>
     </div>
   );

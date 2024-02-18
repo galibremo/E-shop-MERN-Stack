@@ -5,6 +5,8 @@ import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import productReducer from "./reducers/productSlice";
 import eventReducer from "./reducers/eventSlice";
+import cartReducer from "./reducers/cartSlice";
+import wishlistReducer from "./reducers/wishlistSlice";
 
 const persistConfig = {
   key: "root",
@@ -17,6 +19,8 @@ const rootReducer = combineReducers({
   seller: sellerReducer,
   products: productReducer,
   events: eventReducer,
+  cart: cartReducer,
+  wishlist: wishlistReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -30,3 +34,4 @@ export const store = configureStore({
 });
 
 export const persistor = persistStore(store);
+// persistor.persist();

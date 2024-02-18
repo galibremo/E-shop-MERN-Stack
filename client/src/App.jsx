@@ -26,8 +26,22 @@ import ShopCreateProduct from "./pages/ShopCreateProduct";
 import ShopAllProducts from "./pages/ShopAllProducts";
 import ShopAllEvents from "./pages/ShopAllEvents";
 import ShopCreateEvent from "./pages/ShopCreateEvent";
+import ShopAllCoupons from "./pages/ShopAllCoupons";
+import React, { useEffect, useState } from "react";
+import { getAllProducts } from "./redux/actions/productAction";
+import { getAllEvents } from "./redux/actions/eventAction";
+import { useDispatch } from "react-redux";
+import ShopPreviewPage from "./pages/ShopPreviewPage";
+import { loadSeller } from "./redux/actions/userAction";
 
 export default function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getAllProducts());
+    dispatch(getAllEvents());
+  }, [dispatch]);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -42,7 +56,7 @@ export default function App() {
         <Route path="/forgetpassword" element={<ForgetPassword />} />
         <Route path="/resetpassword/:id/:token" element={<ResetPassword />} />
         <Route path="/products" element={<ProductsPage />} />
-        <Route path="/product/:name" element={<ProductDetailsPage />} />
+        <Route path="/product/:id" element={<ProductDetailsPage />} />
         <Route path="/best-selling" element={<BestSellingPage />} />
         <Route path="/events" element={<EventsPage />} />
         <Route path="/faq" element={<FAQPage />} />
@@ -54,15 +68,20 @@ export default function App() {
         {/* shop route */}
         <Route path="/shop-create" element={<ShopCreatePage />} />
         <Route path="/shop-login" element={<ShopLoginPage />} />
+        <Route path="/shop/preview/:id" element={<ShopPreviewPage />} />
         {/* shop private route */}
         <Route element={<SellerPrivateRoute />}>
           <Route path="/shop/:id" element={<ShopHomePage />} />
           <Route path="/dashboard" element={<ShopDashboardPage />} />
           <Route path="/dashboard-orders" element={<ShopAllOrders />} />
           <Route path="/dashboard-products" element={<ShopAllProducts />} />
-          <Route path="/dashboard-create-product" element={<ShopCreateProduct />} />
+          <Route
+            path="/dashboard-create-product"
+            element={<ShopCreateProduct />}
+          />
           <Route path="/dashboard-events" element={<ShopAllEvents />} />
           <Route path="/dashboard-create-event" element={<ShopCreateEvent />} />
+          <Route path="/dashboard-coupon" element={<ShopAllCoupons />} />
         </Route>
       </Routes>
       <ToastContainer

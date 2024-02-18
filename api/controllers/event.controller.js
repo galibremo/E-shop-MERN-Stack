@@ -22,7 +22,7 @@ export const createEvent = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
-export const getAllEvents = catchAsyncErrors(async (req, res, next) => {
+export const getAllEventsShop = catchAsyncErrors(async (req, res, next) => {
   try {
     const events = await Event.find({ shopId: req.params.id });
 
@@ -45,6 +45,20 @@ export const deleteShopEvent = catchAsyncErrors(async (req, res, next) => {
     res.status(201).json({
       success: true,
       message: "Event Deleted successfully!",
+    });
+  } catch (error) {
+    return next(errorHandler(400, error));
+  }
+});
+
+export const getAllEvents = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const events = await Event.find().sort({
+      createdAt: -1,
+    });
+    res.status(201).json({
+      success: true,
+      events,
     });
   } catch (error) {
     return next(errorHandler(400, error));

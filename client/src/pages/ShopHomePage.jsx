@@ -10,7 +10,7 @@ export default function ShopHomePage() {
           <ShopInfo isOwner={true} />
         </div>
         <div className="w-[72%] rounded-[4px]">
-          <ShopProfileData isOwner={true} />
+          <ShopProfileData isOwner={true}/>
         </div>
       </div>
     </div>

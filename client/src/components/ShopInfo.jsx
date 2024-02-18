@@ -4,10 +4,30 @@ import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { signOutSeller } from "../redux/actions/userAction";
 import { toast } from "react-toastify";
+import { getAllProductsShop } from "../redux/actions/productAction";
 
 export default function ShopInfo({ isOwner }) {
+  const [data, setData] = useState({});
+  const { products } = useSelector((state) => state.products);
+  const [isLoading, setIsLoading] = useState(false);
+  const { id } = useParams();
   const dispatch = useDispatch();
-  const { currentSeller } = useSelector((state) => state.seller);
+
+  useEffect(() => {
+    dispatch(getAllProductsShop(id));
+    setIsLoading(true);
+    axios
+      .get(`/api/shop/get-shop-info/${id}`)
+      .then((res) => {
+        setData(res.data.shop);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.log(error);
+        setIsLoading(false);
+      });
+  }, []);
+
   function logoutHandler() {
     try {
       dispatch(signOutSeller());
@@ -22,12 +42,12 @@ export default function ShopInfo({ isOwner }) {
       <div className="w-full py-5">
         <div className="w-full flex item-center justify-center">
           <img
-            src={`${currentSeller?.avatar}`}
+            src={`${data?.avatar}`}
             alt=""
             className="w-[150px] h-[150px] object-cover rounded-full"
           />
         </div>
-        <h3 className="text-center py-2 text-[20px]">{currentSeller.name}</h3>
+        <h3 className="text-center py-2 text-[20px]">{data.name}</h3>
         <p className="text-[16px] text-[#000000a6] p-[10px] flex items-center">
           Lorem ipsum dolor, sit amet consectetur adipisicing elit. Aliquid quam
           nemo inventore explicabo ipsam exercitationem sunt quaerat, magni
@@ -37,11 +57,11 @@ export default function ShopInfo({ isOwner }) {
       </div>
       <div className="p-3">
         <h5 className="font-[600]">Address</h5>
-        <h4 className="text-[#000000a6]">{currentSeller.address}</h4>
+        <h4 className="text-[#000000a6]">{data.address}</h4>
       </div>
       <div className="p-3">
         <h5 className="font-[600]">Phone Number</h5>
-        <h4 className="text-[#000000a6]">{currentSeller.phoneNumber}</h4>
+        <h4 className="text-[#000000a6]">{data.phoneNumber}</h4>
       </div>
       <div className="p-3">
         <h5 className="font-[600]">Total Products</h5>
@@ -53,9 +73,7 @@ export default function ShopInfo({ isOwner }) {
       </div>
       <div className="p-3">
         <h5 className="font-[600]">Joined On</h5>
-        <h4 className="text-[#000000b0]">
-          {currentSeller?.createdAt?.slice(0, 10)}
-        </h4>
+        <h4 className="text-[#000000b0]">{data?.createdAt?.slice(0, 10)}</h4>
       </div>
       {isOwner && (
         <div className="py-3 px-4">

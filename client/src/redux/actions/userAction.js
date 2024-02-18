@@ -22,7 +22,7 @@ import {
 export const loadUser = () => async (dispatch) => {
   try {
     dispatch(LoadUserRequest());
-    const { data } = await axios.get(`api/auth/getuser`, {
+    const { data } = await axios.get(`/api/auth/getuser`, {
       withCredentials: true,
     });
     dispatch(LoadUserSuccess(data.user));
@@ -33,7 +33,7 @@ export const loadUser = () => async (dispatch) => {
 export const signOutUser = () => async (dispatch) => {
   try {
     dispatch(signOutUserStart());
-    const { data } = await axios.get("api/auth/logout", {
+    const { data } = await axios.get("/api/auth/logout", {
       withCredentials: true,
     });
     dispatch(signOutUserSuccess(data.user));
@@ -63,7 +63,7 @@ export const signOutUser = () => async (dispatch) => {
 export const loadSeller = () => async (dispatch) => {
   try {
     dispatch(LoadSellerRequest());
-    const { data } = await axios.get(`api/shop/getshop`, {
+    const { data } = await axios.get(`/api/shop/getshop`, {
       withCredentials: true,
     });
     dispatch(LoadSellerSuccess(data.shop));
@@ -75,7 +75,7 @@ export const updateUserInfo = (formData, id) => async (dispatch) => {
   try {
     dispatch(updateUserInfoRequest());
     const { data } = await axios.put(
-      `api/auth/update-user-info/${id}`,
+      `/api/auth/update-user-info/${id}`,
       formData,
       {
         withCredentials: true,

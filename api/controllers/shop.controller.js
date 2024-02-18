@@ -110,3 +110,15 @@ export const logout = catchAsyncErrors(async (req, res, next) => {
     next(error);
   }
 });
+export const getShopInfo = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const shop = await Shop.findById(req.params.id);
+    if (!shop) return next(errorHandler(404, "Shop doesn't exists"));
+    res.status(201).json({
+      success: true,
+      shop,
+    });
+  } catch (error) {
+    return next(errorHandler(500, error.message));
+  }
+});

@@ -22,6 +22,9 @@ export default function Header({ activeHeading }) {
   const [active, setActive] = useState(false);
   const [dropDown, setDropDown] = useState(false);
   const { isAuthenticated, currentUser } = useSelector((state) => state.user);
+  const { cart } = useSelector((state) => state.cart);
+  const { wishlist } = useSelector((state) => state.wishlist);
+  const { allProducts } = useSelector((state) => state.products);
   const { isSeller } = useSelector((state) => state.seller);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchData, setSearchData] = useState(null);
@@ -31,10 +34,14 @@ export default function Header({ activeHeading }) {
   const navigate = useNavigate();
 
   function handleSearchChange(e) {
-    setSearchTerm(e.target.value);
-    const filteredProducts = productData.filter((product) =>
-      product.name.toLowerCase().includes(e.target.value.toLowerCase())
-    );
+    const term = e.target.value;
+    setSearchTerm(term);
+
+    const filteredProducts =
+      allProducts &&
+      allProducts.filter((product) =>
+        product.name.toLowerCase().includes(term.toLowerCase())
+      );
     setSearchData(filteredProducts);
   }
   window.addEventListener("scroll", () => {
@@ -62,7 +69,6 @@ export default function Header({ activeHeading }) {
             placeholder="Search..."
             className="bg-transparent text-black w-full border-2 p-2  rounded-md"
             value={searchTerm}
-            name="searchTerm"
             onChange={handleSearchChange}
           />
           <FaSearch className="text-slate-600 absolute right-2 top-3.5 cursor-pointer" />
@@ -70,17 +76,15 @@ export default function Header({ activeHeading }) {
             <div className="absolute min-h-[30vh] bg-slate-50 shadow-sm p-4 text-black w-full z-[9]">
               {searchData &&
                 searchData.map((i, index) => {
-                  const d = i.name;
-                  const product_name = d.replace(/\s+/g, "-");
                   return (
-                    <Link key={index} to={`/product/${product_name}`}>
+                    <Link key={index} to={`/product/${i._id}`}>
                       <div className="w-full flex py-1">
                         <img
-                          src={`${i.image_Url[0].url}`}
+                          src={`${i?.imageUrls[0]}`}
                           alt=""
                           className="w-[40px] h-[40px] mr-[10px]"
                         />
-                        <h1>{i.name}</h1>
+                        <h1>{i?.name}</h1>
                       </div>
                     </Link>
                   );
@@ -139,7 +143,7 @@ export default function Header({ activeHeading }) {
               >
                 <AiOutlineHeart size={30} color="rgb(255 255 255 / 83%)" />
                 <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px] leading-tight text-center">
-                  0
+                  {wishlist && wishlist.length}
                 </span>
               </div>
             </div>
@@ -154,7 +158,7 @@ export default function Header({ activeHeading }) {
                   color="rgb(255 255 255 / 83%)"
                 />
                 <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px] leading-tight text-center">
-                  1
+                  {cart && cart.length}
                 </span>
               </div>
             </div>

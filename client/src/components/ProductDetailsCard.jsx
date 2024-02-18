@@ -1,11 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { RxCross1 } from "react-icons/rx";
-import { AiOutlineMessage, AiFillHeart, AiOutlineHeart,AiOutlineShoppingCart } from "react-icons/ai";
+import {
+  AiOutlineMessage,
+  AiFillHeart,
+  AiOutlineHeart,
+  AiOutlineShoppingCart,
+} from "react-icons/ai";
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import { addCart } from "../redux/actions/cartAction";
+import { useSelector, useDispatch } from "react-redux";
+import { addWishlist, removeWishlist } from "../redux/actions/wishlistAction";
 
 export default function ProductDetailsCard({ setOpen, data }) {
+  const { cart } = useSelector((state) => state.cart);
+  const { wishlist } = useSelector((state) => state.wishlist);
+
   const [count, setCount] = useState(1);
   const [click, setClick] = useState(false);
-  const [select, setSelect] = useState(false);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (wishlist && wishlist.find((i) => i._id === data._id)) {
+      setClick(true);
+    } else {
+      setClick(false);
+    }
+  }, [wishlist]);
+
   function handleMessageSubmit() {}
   function decrementCount() {
     if (count > 1) {
@@ -15,33 +37,61 @@ export default function ProductDetailsCard({ setOpen, data }) {
   function incrementCount() {
     setCount(count + 1);
   }
+
+  function addToCartHandler(id) {
+    const isItemExists = cart && cart.find((i) => i._id === id);
+    if (isItemExists) {
+      toast.error("Item already in cart!");
+    } else {
+      if (data.stock < count) {
+        toast.error("Product stock limited!");
+      } else {
+        const cartData = { ...data, qty: count };
+        dispatch(addCart(cartData));
+        toast.success("Item added to cart successfully!");
+      }
+    }
+  }
+
+  function removeFromWishlistHandler(data) {
+    setClick(!click);
+    dispatch(removeWishlist(data));
+  }
+
+  function addToWishlistHandler(data) {
+    setClick(!click);
+    dispatch(addWishlist(data));
+  }
+
   return (
     <div>
       {data ? (
-        <div className="flex items-center justify-center w-screen h-screen bg-[#00000030] fixed top-0 left-0 z-10 ">
-          <div className="w-[90%] md:w-[60%] h-[90vh] overflow-y-scroll md:h-[75vh] bg-white rounded-md shadow-sm relative p-4">
+        <div className="fixed w-full h-screen top-0 left-0 bg-[#00000030] z-40 flex items-center justify-center">
+          <div className="w-[90%] lg:w-[60%] h-[90vh] overflow-y-scroll lg:h-[75vh] bg-white rounded-lg shadow-sm relative p-4">
             <RxCross1
               size={30}
               className="absolute right-3 top-3 z-50"
               onClick={() => setOpen(false)}
             />
-            <div className="block w-full md:flex">
-              <div className="w-full md:w-[50%]">
-                <img src={data.image_Url[0].url} alt="" />
+            <div className="block w-full lg:flex">
+              <div className="w-full lg:w-[50%]">
+                <img src={data?.imageUrls[0]} alt="" />
                 <div className="flex">
-                  <img
-                    src={data.shop.shop_avatar.url}
-                    alt=""
-                    className="w-[50px] h-[50px] rounded-full mr-2"
-                  />
-                  <div>
-                    <h3 className="pt-3 text-[15px] text-blue-400 pb-3">
-                      {data.shop.name}
-                    </h3>
-                    <h3 className="pb-3 text-[15px]">
-                      ({data.shop.ratings}) Ratings
-                    </h3>
-                  </div>
+                  <Link to={`/shop/preview/${data.shop._id}`} className="flex">
+                    <img
+                      src={data?.imageUrls[0]}
+                      alt=""
+                      className="w-[50px] h-[50px] rounded-full mr-2"
+                    />
+                    <div>
+                      <h3 className="pt-3 text-[15px] text-blue-400 pb-3">
+                        {data?.shop?.name}
+                      </h3>
+                      <h3 className="pb-3 text-[15px]">
+                        ({data?.ratings}) Ratings
+                      </h3>
+                    </div>
+                  </Link>
                 </div>
                 <div
                   className="w-[150px] my-3 flex items-center justify-center cursor-pointer bg-[#000] mt-4 rounded-[4px] h-11"
@@ -51,22 +101,20 @@ export default function ProductDetailsCard({ setOpen, data }) {
                     Send Message <AiOutlineMessage className="ml-1" />
                   </span>
                 </div>
-                <h5 className="text-[16px] text-[red] mt-5">
-                  ({data.total_sell}) Sold out
-                </h5>
+                <h5 className="text-[16px] text-[red] mt-5">(50) Sold out</h5>
               </div>
-              <div className="w-full md:w-[50%] pt-5 pl-[5px] pr-[5px]">
+              <div className="w-full lg:w-[50%] pt-5 pl-[5px] pr-[5px]">
                 <h1 className="font-[600] font-Roboto text-[#333] text-[20px]">
                   {data.name}
                 </h1>
-                <p>{data.description}</p>
+                <p>{data?.description}</p>
 
                 <div className="flex pt-3">
                   <h4 className="font-bold text-[18px] text-[#333] font-Roboto">
-                    {data.discount_price}$
+                    {data.discountPrice}$
                   </h4>
                   <h3 className="font-[500] text-[16px] text-[#d55b45] pl-3 mt-[-4px] line-through">
-                    {data.price ? data.price + "$" : null}
+                    {data.originalPrice ? data.originalPrice + "$" : null}
                   </h3>
                 </div>
                 <div className="flex items-center mt-12 justify-between pr-3">
@@ -92,7 +140,7 @@ export default function ProductDetailsCard({ setOpen, data }) {
                       <AiFillHeart
                         size={30}
                         className="cursor-pointer"
-                        onClick={() => setClick(!click)}
+                        onClick={() => removeFromWishlistHandler(data._id)}
                         color={click ? "red" : "#333"}
                         title="Remove from wishlist"
                       />
@@ -100,14 +148,15 @@ export default function ProductDetailsCard({ setOpen, data }) {
                       <AiOutlineHeart
                         size={30}
                         className="cursor-pointer"
-                        onClick={() => setClick(!click)}
+                        onClick={() => addToWishlistHandler(data)}
                         title="Add to wishlist"
                       />
                     )}
                   </div>
                 </div>
                 <div
-                  className="w-[150px] bg-black my-3 justify-center rounded-md cursor-pointer mt-6 h-11 flex items-center "
+                  className="w-[150px] bg-black my-3 justify-center rounded-lg cursor-pointer mt-6 h-11 flex items-center "
+                  onClick={() => addToCartHandler(data._id)}
                 >
                   <span className="text-[#fff] flex items-center">
                     Add to cart <AiOutlineShoppingCart className="ml-1" />

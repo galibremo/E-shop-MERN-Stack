@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   AiFillHeart,
@@ -6,12 +6,23 @@ import {
   AiOutlineMessage,
   AiOutlineShoppingCart,
 } from "react-icons/ai";
+import { getAllProductsShop } from "../redux/actions/productAction";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { addCart } from "../redux/actions/cartAction";
+import { addWishlist, removeWishlist } from "../redux/actions/wishlistAction";
 
 export default function ProductDetails({ data }) {
+  const { cart } = useSelector((state) => state.cart);
+  const { wishlist } = useSelector((state) => state.wishlist);
   const [count, setCount] = useState(1);
   const [click, setClick] = useState(false);
   const [select, setSelect] = useState(0);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { products } = useSelector((state) => state.products);
+
   const incrementCount = () => {
     setCount(count + 1);
   };
@@ -22,6 +33,40 @@ export default function ProductDetails({ data }) {
     }
   };
 
+  useEffect(() => {
+    dispatch(getAllProductsShop(data && data?.shop._id));
+    if (wishlist && wishlist.find((i) => i._id === data?._id)) {
+      setClick(true);
+    } else {
+      setClick(false);
+    }
+  }, [data, wishlist]);
+
+  function addToCartHandler(id) {
+    const isItemExists = cart && cart.find((i) => i._id === id);
+    if (isItemExists) {
+      toast.error("Item already in cart!");
+    } else {
+      if (data.stock < count) {
+        toast.error("Product stock limited!");
+      } else {
+        const cartData = { ...data, qty: count };
+        dispatch(addCart(cartData));
+        toast.success("Item added to cart successfully!");
+      }
+    }
+  }
+
+  function removeFromWishlistHandler(data) {
+    setClick(!click);
+    dispatch(removeWishlist(data));
+  }
+
+  function addToWishlistHandler(data) {
+    setClick(!click);
+    dispatch(addWishlist(data));
+  }
+
   return (
     <div className="bg-white">
       {data ? (
@@ -30,35 +75,27 @@ export default function ProductDetails({ data }) {
             <div className="block w-full lg:flex">
               <div className="w-full lg:w-[50%]">
                 <img
-                  src={data.image_Url[select].url}
+                  src={data && data?.imageUrls[select]}
                   alt=""
                   className="w-[80%]"
                 />
                 <div className="w-full flex">
-                  <div
-                    className={`${
-                      select === 0 ? "border" : "null"
-                    } cursor-pointer`}
-                  >
-                    <img
-                      src={data?.image_Url[0].url}
-                      alt=""
-                      className="h-[200px] overflow-hidden mr-3 mt-3"
-                      onClick={() => setSelect(0)}
-                    />
-                  </div>
-                  <div
-                    className={`${
-                      select === 1 ? "border" : "null"
-                    } cursor-pointer`}
-                  >
-                    <img
-                      src={data?.image_Url[1].url}
-                      alt=""
-                      className="h-[200px] overflow-hidden mr-3 mt-3"
-                      onClick={() => setSelect(1)}
-                    />
-                  </div>
+                  {data &&
+                    data.imageUrls.map((i, index) => (
+                      <div
+                        key={index}
+                        className={`${
+                          select === 0 ? "border" : "null"
+                        } cursor-pointer`}
+                      >
+                        <img
+                          src={i}
+                          alt=""
+                          className="h-[200px] overflow-hidden mr-3 mt-3"
+                          onClick={() => setSelect(index)}
+                        />
+                      </div>
+                    ))}
                 </div>
               </div>
               <div className="w-full lg:w-[50%]">
@@ -68,10 +105,10 @@ export default function ProductDetails({ data }) {
                 <p className="">{data.description}</p>
                 <div className="flex pt-3">
                   <h4 className="font-bold text-[18px] text-[#333] font-Roboto">
-                    {data.discount_price}$
+                    {data.discountPrice}$
                   </h4>
                   <h3 className="font-[500] text-[16px] text-[#d55b45] pl-3 mt-[-4px] line-through">
-                    {data.price ? data.price : null}
+                    {data.originalPrice ? data.originalPrice + "$" : null}
                   </h3>
                 </div>
                 <div className="flex items-center mt-12 justify-between pr-3">
@@ -97,6 +134,7 @@ export default function ProductDetails({ data }) {
                       <AiFillHeart
                         size={30}
                         className="cursor-pointer"
+                        onClick={() => removeFromWishlistHandler(data._id)}
                         color={click ? "red" : "#333"}
                         title="Remove from wishlist"
                       />
@@ -104,13 +142,17 @@ export default function ProductDetails({ data }) {
                       <AiOutlineHeart
                         size={30}
                         className="cursor-pointer"
+                        onClick={() => addToWishlistHandler(data)}
                         color={click ? "red" : "#333"}
                         title="Add to wishlist"
                       />
                     )}
                   </div>
                 </div>
-                <div className="w-[150px] my-3 flex items-center justify-center cursor-pointer bg-[#6443d1] mt-4 !rounded h-11">
+                <div
+                  className="w-[150px] my-3 flex items-center justify-center cursor-pointer bg-[#6443d1] mt-4 !rounded h-11"
+                  onClick={() => addToCartHandler(data._id)}
+                >
                   <span className="text-white flex items-center">
                     Add to cart <AiOutlineShoppingCart className="ml-1" />
                   </span>
@@ -118,7 +160,7 @@ export default function ProductDetails({ data }) {
                 <div className="flex items-center pt-8">
                   <Link to={`/shop/preview/${data?.shop._id}`}>
                     <img
-                      src={data.shop.shop_avatar.url}
+                      src={data?.shop?.avatar}
                       alt=""
                       className="w-[50px] h-[50px] rounded-full mr-2"
                     />
@@ -126,11 +168,11 @@ export default function ProductDetails({ data }) {
                   <div className="pr-8">
                     <Link to={`/shop/preview/${data?.shop._id}`}>
                       <h3 className="text-[15px] text-blue-400 pb-1 pt-1">
-                        {data.shop.name}
+                        {data?.shop?.name}
                       </h3>
                     </Link>
                     <h5 className="pb-3 text-[15px]">
-                      ({data.shop.ratings}) Raatings
+                      ({data?.shop?.ratings}) Raatings
                     </h5>
                   </div>
                   <div className="w-[150px] my-3 flex items-center justify-center cursor-pointer bg-[#6443d1] mt-4 !rounded !h-11">
@@ -142,7 +184,7 @@ export default function ProductDetails({ data }) {
               </div>
             </div>
           </div>
-          <ProductDetailsInfo data={data} />
+          <ProductDetailsInfo data={data} products={products} />
           <br />
           <br />
         </div>
@@ -151,7 +193,7 @@ export default function ProductDetails({ data }) {
   );
 }
 
-const ProductDetailsInfo = ({ data }) => {
+const ProductDetailsInfo = ({ data, products }) => {
   const [active, setActive] = useState(1);
   return (
     <div className="bg-[#f5f6fb] px-3 lg:px-10 py-2 rounded">
@@ -193,22 +235,7 @@ const ProductDetailsInfo = ({ data }) => {
       {active === 1 ? (
         <>
           <p className="py-2 text-[18px] leading-8 pb-10 whitespace-pre-line">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Delectus,
-            dicta illo nostrum laudantium adipisci saepe expedita est,
-            laboriosam soluta exercitationem velit? Odit et, libero consequatur
-            quaerat ratione asperiores natus autem.
-          </p>
-          <p className="py-2 text-[18px] leading-8 pb-10 whitespace-pre-line">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Delectus,
-            dicta illo nostrum laudantium adipisci saepe expedita est,
-            laboriosam soluta exercitationem velit? Odit et, libero consequatur
-            quaerat ratione asperiores natus autem.
-          </p>
-          <p className="py-2 text-[18px] leading-8 pb-10 whitespace-pre-line">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Delectus,
-            dicta illo nostrum laudantium adipisci saepe expedita est,
-            laboriosam soluta exercitationem velit? Odit et, libero consequatur
-            quaerat ratione asperiores natus autem.
+            {data.description}
           </p>
         </>
       ) : null}
@@ -222,7 +249,7 @@ const ProductDetailsInfo = ({ data }) => {
           <div className="w-full lg:w-[50%]">
             <div className="flex items-center">
               <img
-                src={data.shop.shop_avatar.url}
+                src={data?.shop?.avatar}
                 alt=""
                 className="w-[50px] h-[50px] rounded-full"
               />
@@ -235,28 +262,27 @@ const ProductDetailsInfo = ({ data }) => {
                 </h5>
               </div>
             </div>
-            <p className="pt-2">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi
-              similique magnam et doloribus unde odio vero dignissimos nobis
-              laudantium nesciunt accusantium enim possimus, incidunt laborum
-              beatae eum alias dolorum exercitationem.
-            </p>
+            <p className="pt-2">{data.description}</p>
           </div>
           <div className="w-full lg:w-[50%] mt-5 lg:mt-0 lg:flex flex-col items-end">
             <div className="text-left">
               <h5 className="font-[600]">
-                Joined On: <span className="font-[500]">14 march, 2023</span>
+                Joined On:{" "}
+                <span className="font-[500]">
+                  {data.shop?.createdAt?.slice(0, 10)}
+                </span>
               </h5>
               <h5 className="font-[600] pt-3">
-                Total Products: <span className="font-[500]">1,233</span>
+                Total Products:{" "}
+                <span className="font-[500]">
+                  {products && products.length}
+                </span>
               </h5>
               <h5 className="font-[600] pt-3">
                 Total Reviews: <span className="font-[500]">233</span>
               </h5>
-              <Link to="/">
-                <div
-                  className="w-[150px] bg-black my-3 flex items-center justify-center cursor-pointer !rounded-[4px] !h-[39.5px] mt-3"
-                >
+              <Link to={`/shop/${data?.shop?._id}`}>
+                <div className="w-[150px] bg-black my-3 flex items-center justify-center cursor-pointer !rounded-[4px] !h-[39.5px] mt-3">
                   <h4 className="text-white">Visit Shop</h4>
                 </div>
               </Link>

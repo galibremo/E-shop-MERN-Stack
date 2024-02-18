@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { RxAvatar } from "react-icons/rx";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
@@ -20,6 +20,7 @@ export default function ShopCreatePage() {
     email: "",
     name: "",
     phoneNumber: "",
+    description: "",
     address: "",
     zipCode: "",
     password: "",
@@ -64,7 +65,7 @@ export default function ShopCreatePage() {
               </label>
               <div className="mt-1">
                 <input
-                  type="name"
+                  type="text"
                   name="name"
                   required
                   value={formData.name}
@@ -92,7 +93,24 @@ export default function ShopCreatePage() {
                 />
               </div>
             </div>
-
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Description
+              </label>
+              <div className="mt-1">
+                <input
+                  type="text"
+                  name="description"
+                  required
+                  value={formData.description}
+                  onChange={handleChange}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+              </div>
+            </div>
             <div>
               <label
                 htmlFor="email"
@@ -122,7 +140,7 @@ export default function ShopCreatePage() {
               </label>
               <div className="mt-1">
                 <input
-                  type="address"
+                  type="text"
                   name="address"
                   required
                   value={formData.address}

@@ -14,7 +14,7 @@ export default function AllProducts() {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getAllProductsShop(currentSeller._id));
-  }, [dispatch]);
+  }, []);
 
   const handleDelete = (id, imageUrls) => {
     dispatch(deleteProductShop(id, imageUrls));
