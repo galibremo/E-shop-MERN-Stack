@@ -21,6 +21,7 @@ import { app } from "../firebase.js";
 import { updateUserInfo } from "../redux/actions/userAction.js";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { Country, State } from "country-state-city";
 
 export default function ProfileContent({ active }) {
   const { currentUser, loading, error } = useSelector((state) => state.user);
@@ -590,13 +591,184 @@ function ChangePassword() {
 }
 
 function Address() {
+  const [open, setOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    country: "",
+    city: "",
+    address1: "",
+    address2: "",
+    addressType: "",
+    zipCode: "",
+  });
+  const addressTypeData = [
+    {
+      name: "Default",
+    },
+    {
+      name: "Home",
+    },
+    {
+      name: "Office",
+    },
+  ];
+
+  function handleSubmit() {}
+
+  function handleChange(event) {
+    const { id, value } = event.target;
+    setFormData({
+      ...formData,
+      [id]: value,
+    });
+  }
+  console.log(formData);
   return (
     <div className="w-full px-5">
+      {open && (
+        <div className="fixed h-screen w-full bg-[#0000004b] top-0 left-0 flex items-center justify-center">
+          <div className="w-[35%] h-[80vh] bg-white rounded shadow relative overflow-y-scroll">
+            <div className="flex justify-end p-3">
+              <RxCross1
+                size={20}
+                onClick={() => setOpen(false)}
+                className="cursor-pointer"
+              />
+            </div>
+            <h1 className="text-center text-[25px] font-Poppins">
+              Add New Address
+            </h1>
+            <div className="w-full">
+              <form onSubmit={handleSubmit} className="w-full">
+                <div className="w-full block p-4">
+                  <div className="w-full pb-2">
+                    <label className="block pb-2">Country</label>
+                    <select
+                      id="country"
+                      value={formData?.country}
+                      className="w-[95%] border h-[40px] rounded-[5px]"
+                      onChange={handleChange}
+                    >
+                      <option value="" className="block border pb-2">
+                        choose your country
+                      </option>
+                      {Country &&
+                        Country.getAllCountries().map((item) => (
+                          <option
+                            className="block pb-2"
+                            key={item.isoCode}
+                            value={item.isoCode}
+                          >
+                            {item.name}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+
+                  <div className="w-full pb-2">
+                    <label className="block pb-2">Choose your City</label>
+                    <select
+                      id="city"
+                      value={formData?.city}
+                      className="w-[95%] border h-[40px] rounded-[5px]"
+                      onChange={handleChange}
+                    >
+                      <option value="" className="block border pb-2">
+                        choose your city
+                      </option>
+                      {State &&
+                        State.getStatesOfCountry(formData?.country).map(
+                          (item) => (
+                            <option
+                              className="block pb-2"
+                              key={item.isoCode}
+                              value={item.isoCode}
+                            >
+                              {item.name}
+                            </option>
+                          )
+                        )}
+                    </select>
+                  </div>
+
+                  <div className="w-full pb-2">
+                    <label className="block pb-2">Address 1</label>
+                    <input
+                      id="address1"
+                      type="address"
+                      className="w-full border p-1 rounded-[5px]"
+                      required
+                      value={formData?.address1}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  <div className="w-full pb-2">
+                    <label className="block pb-2">Address 2</label>
+                    <input
+                      id="address2"
+                      type="address"
+                      className="w-full border p-1 rounded-[5px]"
+                      required
+                      value={formData?.address2}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="w-full pb-2">
+                    <label className="block pb-2">Zip Code</label>
+                    <input
+                      id="zipCode"
+                      type="number"
+                      className="w-full border p-1 rounded-[5px]"
+                      required
+                      value={formData?.zipCode}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="w-full pb-2">
+                    <label className="block pb-2">Address Type</label>
+                    <select
+                      id="addressType"
+                      value={formData?.addressType}
+                      className="w-[95%] border h-[40px] rounded-[5px]"
+                      onChange={handleChange}
+                    >
+                      <option value="" className="block border pb-2">
+                        Choose your Address Type
+                      </option>
+                      {addressTypeData &&
+                        addressTypeData.map((item) => (
+                          <option
+                            className="block pb-2"
+                            key={item.name}
+                            value={item.name}
+                          >
+                            {item.name}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+
+                  <div className=" w-full pb-2">
+                    <input
+                      type="submit"
+                      className="w-full border p-1 rounded-[5px]"
+                    />
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="flex w-full items-center justify-between">
         <h1 className="block text-[25px] text-center font-[600] text-[#000000ba] pb-2">
           My Addresses
         </h1>
-        <div className="w-[150px] bg-black h-[50px] my-3 flex items-center justify-center rounded-md cursor-pointer">
+        <div
+          className="w-[150px] bg-black h-[50px] my-3 flex items-center justify-center rounded-md cursor-pointer"
+          onClick={() => setOpen(true)}
+        >
           <span className="text-[#fff]">Add New</span>
         </div>
       </div>
