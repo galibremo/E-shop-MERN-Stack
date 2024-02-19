@@ -20,6 +20,7 @@ import {
 import { app } from "../firebase.js";
 import { updateUserInfo } from "../redux/actions/userAction.js";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 export default function ProfileContent({ active }) {
   const { currentUser, loading, error } = useSelector((state) => state.user);
@@ -499,13 +500,39 @@ function TrackOrder() {
 }
 
 function ChangePassword() {
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const { currentUser } = useSelector((state) => state.user);
+  const [formData, setFormData] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
 
-  const passwordChangeHandler = async (e) => {
+  function handleChange(event) {
+    const { id, value } = event.target;
+    setFormData({
+      ...formData,
+      [id]: value,
+    });
+  }
+
+  async function handleSubmit(e) {
     e.preventDefault();
-  };
+    try {
+      const { data } = await axios.put(
+        `/api/auth/update-user-password/${currentUser._id}`,
+        formData,
+        {
+          withCredentials: true,
+        }
+      );
+      if (data.success === false) {
+        return toast.error(error.message);
+      }
+      toast.success("Password Changed successfully!");
+    } catch (error) {
+      toast.error(error.message);
+    }
+  }
   return (
     <div className="w-full px-5">
       <h1 className="block text-[25px] text-center font-[600] text-[#000000ba] pb-2">
@@ -514,37 +541,40 @@ function ChangePassword() {
       <div className="w-full">
         <form
           aria-required
-          onSubmit={passwordChangeHandler}
+          onSubmit={handleSubmit}
           className="flex flex-col items-center"
         >
           <div className=" w-[100%] lg:w-[50%] mt-5">
             <label className="block pb-2">Enter your old password</label>
             <input
               type="password"
+              id="oldPassword"
               className="border p-1 rounded-[5px] !w-[95%] mb-4 lg:mb-0"
+              value={formData?.oldPassword}
               required
-              value={oldPassword}
-              onChange={(e) => setOldPassword(e.target.value)}
+              onChange={handleChange}
             />
           </div>
           <div className=" w-[100%] lg:w-[50%] mt-2">
             <label className="block pb-2">Enter your new password</label>
             <input
               type="password"
+              id="newPassword"
               className="border p-1 rounded-[5px] !w-[95%] mb-4 lg:mb-0"
+              value={formData?.newPassword}
               required
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={handleChange}
             />
           </div>
           <div className=" w-[100%] lg:w-[50%] mt-2">
             <label className="block pb-2">Enter your confirm password</label>
             <input
               type="password"
+              id="confirmPassword"
               className="border p-1 rounded-[5px] !w-[95%] mb-4 lg:mb-0"
+              value={formData?.confirmPassword}
               required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={handleChange}
             />
             <input
               className={`w-[95%] h-[40px] border border-[#3a24db] text-center text-[#3a24db] rounded-[3px] mt-8 cursor-pointer`}

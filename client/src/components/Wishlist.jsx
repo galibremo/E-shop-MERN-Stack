@@ -4,6 +4,8 @@ import { BsCartPlus } from "react-icons/bs";
 import { AiOutlineHeart } from "react-icons/ai";
 import { useSelector, useDispatch } from "react-redux";
 import { removeWishlist } from "../redux/actions/wishlistAction";
+import { addCart } from "../redux/actions/cartAction";
+import { toast } from "react-toastify";
 
 export default function Wishlist({ setOpenWishlist }) {
   const { wishlist } = useSelector((state) => state.wishlist);
@@ -13,6 +15,14 @@ export default function Wishlist({ setOpenWishlist }) {
   function removeFromWishlistHandler(data) {
     dispatch(removeWishlist(data));
   }
+
+  function addToCartHandler(data) {
+    const cartData = { ...data, qty: 1 };
+    dispatch(addCart(cartData));
+    toast.success("Item added to cart successfully!");
+    setOpenWishlist(false);
+  }
+
   return (
     <div className="fixed top-0 left-0 w-full bg-[#0000004b] h-screen z-10">
       <div className="fixed top-0 right-0 h-full w-[80%] md:w-[25%] bg-white flex flex-col overflow-y-scroll justify-between shadow-sm">
@@ -49,6 +59,7 @@ export default function Wishlist({ setOpenWishlist }) {
                     key={index}
                     data={i}
                     removeFromWishlistHandler={removeFromWishlistHandler}
+                    addToCartHandler={addToCartHandler}
                   />
                 ))}
             </div>
@@ -58,7 +69,7 @@ export default function Wishlist({ setOpenWishlist }) {
     </div>
   );
 }
-const CartSingle = ({ data, removeFromWishlistHandler }) => {
+const CartSingle = ({ data, removeFromWishlistHandler, addToCartHandler }) => {
   const [value, setValue] = useState(1);
   const totalPrice = data.discountPrice * value;
   return (
@@ -81,7 +92,12 @@ const CartSingle = ({ data, removeFromWishlistHandler }) => {
           </h4>
         </div>
         <div>
-          <BsCartPlus size={20} className="cursor-pointer" tile="Add to cart" />
+          <BsCartPlus
+            size={20}
+            className="cursor-pointer"
+            tile="Add to cart"
+            onClick={() => addToCartHandler(data)}
+          />
         </div>
       </div>
     </div>

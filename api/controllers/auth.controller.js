@@ -174,18 +174,20 @@ export const updateUserInfo = catchAsyncErrors(async (req, res, next) => {
     } else {
       // If addresses array is not empty, use $set to update the existing element
       const user = await User.findById(req.params.id);
-      const { addresses: [{ _id: addressId }] } = user;
+      const {
+        addresses: [{ _id: addressId }],
+      } = user;
 
       const updatedUser = await User.findOneAndUpdate(
         {
           _id: req.params.id,
-          'addresses._id': addressId.toString(), 
+          "addresses._id": addressId.toString(),
         },
         {
           $set: {
-            'addresses.$.address1': req.body.address1,
-            'addresses.$.address2': req.body.address2,
-            'addresses.$.zipCode': req.body.zipCode,
+            "addresses.$.address1": req.body.address1,
+            "addresses.$.address2": req.body.address2,
+            "addresses.$.zipCode": req.body.zipCode,
             name: req.body.name,
             email: req.body.email,
             phoneNumber: req.body.phoneNumber,
@@ -197,6 +199,42 @@ export const updateUserInfo = catchAsyncErrors(async (req, res, next) => {
 
       res.status(200).json(updatedUser);
     }
+  } catch (error) {
+    next(error);
+  }
+});
+export const updateUserPassword = catchAsyncErrors(async (req, res, next) => {
+  try {
+    if (req.user.id !== req.params.id) {
+      return next(errorHandler(401, "You can only update your own account!"));
+    }
+    const user = await User.findById(req.params.id).select("+password");
+
+    const isPasswordMatched = await user.comparePassword(req.body.oldPassword);
+
+    if (!isPasswordMatched) {
+      return next(errorHandler(400, "Old password is incorrect!"));
+    }
+
+    if (req.body.newPassword !== req.body.confirmPassword) {
+      return next(
+        errorHandler(400, "Password doesn't matched with each other!")
+      );
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          password: bcryptjs.hashSync(req.body.newPassword, 10),
+        },
+      },
+      { new: true }
+    );
+    res.status(200).json({
+      success: true,
+      message: "Password updated successfully!",
+    });
   } catch (error) {
     next(error);
   }
