@@ -23,6 +23,12 @@ const userSchema = new mongoose.Schema(
     },
     addresses: [
       {
+        country: {
+          type: String,
+        },
+        city: {
+          type: String,
+        },
         address1: {
           type: String,
         },
@@ -32,16 +38,20 @@ const userSchema = new mongoose.Schema(
         zipCode: {
           type: Number,
         },
+        addressType: {
+          type: String,
+        },
       },
     ],
     role: {
       type: String,
       default: "user",
     },
-    avatar:{
-      type:String,
-      default:"https://thumbs.dreamstime.com/b/default-avatar-profile-icon-social-media-user-vector-default-avatar-profile-icon-social-media-user-vector-portrait-176194876.jpg"
-  },
+    avatar: {
+      type: String,
+      default:
+        "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-social-media-user-vector-default-avatar-profile-icon-social-media-user-vector-portrait-176194876.jpg",
+    },
     resetPasswordToken: String,
     resetPasswordTime: Date,
   },
@@ -53,7 +63,7 @@ userSchema.pre("save", async function (next) {
   this.password = await bcryptjs.hashSync(this.password, 10);
 });
 
-userSchema.methods.getJwtToken = function() {
+userSchema.methods.getJwtToken = function () {
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET_KEY, {
     expiresIn: process.env.JWT_EXPIRES,
   });
@@ -63,5 +73,5 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcryptjs.compareSync(enteredPassword, this.password);
 };
 
-const User = mongoose.model('User',userSchema);
+const User = mongoose.model("User", userSchema);
 export default User;

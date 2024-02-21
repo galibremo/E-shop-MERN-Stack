@@ -167,7 +167,7 @@ export default function Header({ activeHeading }) {
                 {isAuthenticated ? (
                   <Link to="/profile">
                     <img
-                      src={currentUser.avatar}
+                      src={currentUser?.avatar}
                       alt=""
                       className="w-[30px] h-[30px] rounded-full object-cover"
                     />

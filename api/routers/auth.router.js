@@ -7,10 +7,12 @@ import {
   signin,
   signup,
   logout,
+  updateUserInfo,
+  updateUserPassword,
+  updateUserAddress,
+  deleteUserAddress,
 } from "../controllers/auth.controller.js";
 import { isAuthenticated } from "../middleware/auth.js";
-import { updateUserInfo } from "../controllers/auth.controller.js";
-import { updateUserPassword } from "../controllers/auth.controller.js";
 
 const router = express.Router();
 
@@ -23,5 +25,7 @@ router.get("/getuser", isAuthenticated, getuser);
 router.get("/logout", isAuthenticated, logout);
 router.put("/update-user-info/:id", isAuthenticated, updateUserInfo);
 router.put("/update-user-password/:id", isAuthenticated, updateUserPassword);
+router.put("/update-user-address", isAuthenticated, updateUserAddress);
+router.delete("/delete-user-address/:id", isAuthenticated, deleteUserAddress);
 
 export default router;

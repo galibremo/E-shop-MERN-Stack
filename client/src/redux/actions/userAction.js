@@ -9,6 +9,12 @@ import {
   updateUserInfoRequest,
   updateUserInfoSuccess,
   updateUserInfoFailed,
+  updateUserAddressRequest,
+  updateUserAddressSuccess,
+  updateUserAddressFailed,
+  deleteUserAddressRequest,
+  deleteUserAddressSuccess,
+  deleteUserAddressFailed,
 } from "../reducers/userSlice";
 import {
   LoadSellerRequest,
@@ -18,6 +24,7 @@ import {
   signOutSellerSuccess,
   signOutSellerFailure,
 } from "../reducers/sellerSlice";
+import { toast } from "react-toastify";
 
 export const loadUser = () => async (dispatch) => {
   try {
@@ -41,25 +48,7 @@ export const signOutUser = () => async (dispatch) => {
     dispatch(signOutUserFailure(error.response.data.message));
   }
 };
-// export const loadUser = () => async (dispatch) => {
-//     try {
-//       dispatch({
-//         type: "LoadUserRequest",
-//       });
-//       const { data } = await axios.get(`api/auth/getuser`, {
-//         withCredentials: true,
-//       });
-//       dispatch({
-//         type: "LoadUserSuccess",
-//         payload: data.user,
-//       });
-//     } catch (error) {
-//       dispatch({
-//         type: "LoadUserFail",
-//         payload: error.response.data.message,
-//       });
-//     }
-//   };
+
 export const loadSeller = () => async (dispatch) => {
   try {
     dispatch(LoadSellerRequest());
@@ -95,5 +84,43 @@ export const signOutSeller = () => async (dispatch) => {
     dispatch(signOutSellerSuccess(data.seller));
   } catch (error) {
     dispatch(signOutSellerFailure(error.response.data.message));
+  }
+};
+export const updateUserAddress = (formData) => async (dispatch) => {
+  try {
+    dispatch(updateUserAddressRequest());
+    const { data } = await axios.put(
+      "/api/auth/update-user-address",
+      formData,
+      { withCredentials: true }
+    );
+    if (data.success === false) {
+      dispatch(updateUserAddressFailed(error.message));
+      return;
+    }
+    dispatch(updateUserAddressSuccess(data.user));
+    toast.success("Address Updated Successfully!");
+  } catch (error) {
+    dispatch(updateUserAddressFailed(error.response.data.message));
+    toast.error(error.response.data.message);
+  }
+};
+
+export const deleteUserAddress = (id) => async (dispatch) => {
+  try {
+    dispatch(deleteUserAddressRequest());
+
+    const { data } = await axios.delete(`/api/auth/delete-user-address/${id}`, {
+      withCredentials: true,
+    });
+    if (data.success === false) {
+      dispatch(deleteUserAddressFailed(error.message));
+      return;
+    }
+    dispatch(deleteUserAddressSuccess(data.user));
+    toast.success("Address Deleted Successfully!");
+  } catch (error) {
+    dispatch(deleteUserAddressFailed(error.message));
+    toast.error(error.message);
   }
 };

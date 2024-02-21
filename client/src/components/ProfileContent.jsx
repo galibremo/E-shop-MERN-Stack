@@ -18,7 +18,11 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import { app } from "../firebase.js";
-import { updateUserInfo } from "../redux/actions/userAction.js";
+import {
+  updateUserAddress,
+  updateUserInfo,
+  deleteUserAddress,
+} from "../redux/actions/userAction.js";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { Country, State } from "country-state-city";
@@ -157,7 +161,7 @@ export default function ProfileContent({ active }) {
                     defaultValue={currentUser?.phoneNumber}
                   />
                 </div>
-                <div className=" w-[100%] lg:w-[50%]">
+                {/* <div className=" w-[100%] lg:w-[50%]">
                   <label className="block pb-2">Zip Code</label>
                   <input
                     id="zipCode"
@@ -167,10 +171,10 @@ export default function ProfileContent({ active }) {
                     onChange={handleChange}
                     defaultValue={currentUser.addresses[0]?.zipCode}
                   />
-                </div>
+                </div> */}
               </div>
 
-              <div className="w-full lg:flex block pb-3">
+              {/* <div className="w-full lg:flex block pb-3">
                 <div className=" w-[100%] lg:w-[50%]">
                   <label className="block pb-2">Address 1</label>
                   <input
@@ -193,7 +197,7 @@ export default function ProfileContent({ active }) {
                     defaultValue={currentUser.addresses[0]?.address2}
                   />
                 </div>
-              </div>
+              </div> */}
               <button
                 disabled={loading}
                 className={`w-[250px] h-[40px] border border-[#3a24db] text-center text-[#3a24db] rounded-[3px] mt-5 cursor-pointer uppercase`}
@@ -600,6 +604,9 @@ function Address() {
     addressType: "",
     zipCode: "",
   });
+  const { currentUser } = useSelector((state) => state.user);
+
+  const dispatch = useDispatch();
   const addressTypeData = [
     {
       name: "Default",
@@ -612,7 +619,12 @@ function Address() {
     },
   ];
 
-  function handleSubmit() {}
+  function handleSubmit(e) {
+    e.preventDefault();
+    dispatch(updateUserAddress(formData));
+    setFormData("");
+    setOpen(false);
+  }
 
   function handleChange(event) {
     const { id, value } = event.target;
@@ -621,7 +633,10 @@ function Address() {
       [id]: value,
     });
   }
-  console.log(formData);
+  function handleDelete(item) {
+    const id = item._id;
+    dispatch(deleteUserAddress(id));
+  }
   return (
     <div className="w-full px-5">
       {open && (
@@ -645,7 +660,7 @@ function Address() {
                     <select
                       id="country"
                       value={formData?.country}
-                      className="w-[95%] border h-[40px] rounded-[5px]"
+                      className="w-full border h-[40px] rounded-[5px] p-1"
                       onChange={handleChange}
                     >
                       <option value="" className="block border pb-2">
@@ -669,7 +684,7 @@ function Address() {
                     <select
                       id="city"
                       value={formData?.city}
-                      className="w-[95%] border h-[40px] rounded-[5px]"
+                      className="w-full border h-[40px] rounded-[5px] p-1"
                       onChange={handleChange}
                     >
                       <option value="" className="block border pb-2">
@@ -730,7 +745,7 @@ function Address() {
                     <select
                       id="addressType"
                       value={formData?.addressType}
-                      className="w-[95%] border h-[40px] rounded-[5px]"
+                      className="w-full border h-[40px] rounded-[5px] p-1"
                       onChange={handleChange}
                     >
                       <option value="" className="block border pb-2">
@@ -773,20 +788,40 @@ function Address() {
         </div>
       </div>
       <br />
-      <div className="full bg-white h-[70px] rounded-[4px] flex items-center px-3 shadow justify-between pr-10">
-        <div className="flex item-center">
-          <h5 className="pl-5 font-[600]">Default</h5>
-        </div>
-        <div className="pl-8 flex items-center">
-          <h6> 494 Erdman Pasaage, New Zoietown, Paraguay</h6>
-        </div>
-        <div className="pl-8 flex items-center">
-          <h6> {213} 840-91203923</h6>
-        </div>
-        <div className="min-w-[10%] flex items-center justify-between pl-8">
-          <AiOutlineDelete size={25} className="cursor-pointer" />
-        </div>
-      </div>
+      {currentUser &&
+        currentUser.addresses.map((item, index) => (
+          <div
+            className="w-full bg-white h-min lg:h-[70px] rounded-[4px] flex items-center px-3 shadow justify-between pr-10 mb-5"
+            key={index}
+          >
+            <div className="flex items-center">
+              <h5 className="pl-5 font-[600]">{item.addressType}</h5>
+            </div>
+            <div className="pl-8 flex items-center">
+              <h6 className="text-[12px] lg:text-[unset]">
+                {item.address1}, {item.address2}, {item.country}
+              </h6>
+            </div>
+            <div className="pl-8 flex items-center">
+              <h6 className="text-[12px] lg:text-[unset]">
+                {currentUser && currentUser.phoneNumber}
+              </h6>
+            </div>
+            <div className="min-w-[10%] flex items-center justify-between pl-8">
+              <AiOutlineDelete
+                size={25}
+                className="cursor-pointer"
+                onClick={() => handleDelete(item)}
+              />
+            </div>
+          </div>
+        ))}
+
+      {currentUser && currentUser.addresses.length === 0 && (
+        <h5 className="text-center pt-8 text-[18px]">
+          You not have any saved address!
+        </h5>
+      )}
     </div>
   );
 }
