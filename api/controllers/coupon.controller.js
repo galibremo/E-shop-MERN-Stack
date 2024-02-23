@@ -34,7 +34,6 @@ export const getAllCoupons = catchAsyncErrors(async (req, res, next) => {
   } catch (error) {
     console.log(error);
     return next(errorHandler(400, error));
-
   }
 });
 
@@ -48,6 +47,19 @@ export const deleteShopCoupon = catchAsyncErrors(async (req, res, next) => {
     res.status(201).json({
       success: true,
       message: "Coupon code deleted successfully!",
+    });
+  } catch (error) {
+    return next(errorHandler(400, error));
+  }
+});
+
+export const getCouponValue = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const couponCode = await Coupon.findOne({ name: req.params.name });
+
+    res.status(200).json({
+      success: true,
+      couponCode,
     });
   } catch (error) {
     return next(errorHandler(400, error));

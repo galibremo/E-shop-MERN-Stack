@@ -33,6 +33,7 @@ import { getAllEvents } from "./redux/actions/eventAction";
 import { useDispatch } from "react-redux";
 import ShopPreviewPage from "./pages/ShopPreviewPage";
 import { loadSeller } from "./redux/actions/userAction";
+import PaymentPage from "./pages/PaymentPage";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -83,6 +84,8 @@ export default function App() {
           <Route path="/dashboard-create-event" element={<ShopCreateEvent />} />
           <Route path="/dashboard-coupon" element={<ShopAllCoupons />} />
         </Route>
+        {/* payment route */}
+        <Route path="/payment" element={<PaymentPage />} />
       </Routes>
       <ToastContainer
         position="bottom-center"
