@@ -29,11 +29,11 @@ export default function Checkout() {
 
   function paymentSubmit() {
     if (
-      address1 === "" ||
-      address2 === "" ||
-      zipCode === null ||
-      country === "" ||
-      city === ""
+      formData.address1 === "" ||
+      formData.address2 === "" ||
+      formData.zipCode === null ||
+      formData.country === "" ||
+      formData.city === ""
     ) {
       toast.error("Please choose your delivery address!");
     } else {

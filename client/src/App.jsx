@@ -34,17 +34,45 @@ import { useDispatch } from "react-redux";
 import ShopPreviewPage from "./pages/ShopPreviewPage";
 import { loadSeller } from "./redux/actions/userAction";
 import PaymentPage from "./pages/PaymentPage";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import axios from "axios";
+import { toast } from "react-toastify";
+import OrderSuccessPage from "./pages/OrderSuccessPage";
 
 export default function App() {
+  const [stripeApikey, setStripeApiKey] = useState("");
   const dispatch = useDispatch();
+
+  async function getStripeApiKey() {
+    try {
+      const { data } = await axios.get("/api/payment/stripe-api-key");
+      if (data.success === false) {
+        toast.error(error.message);
+      }
+      setStripeApiKey(data.stripeApiKey);
+    } catch (error) {
+      toast.error(error.message);
+    }
+  }
 
   useEffect(() => {
     dispatch(getAllProducts());
     dispatch(getAllEvents());
+    getStripeApiKey();
   }, [dispatch]);
 
   return (
     <BrowserRouter>
+      {stripeApikey && (
+        <Elements stripe={loadStripe(stripeApikey)}>
+          <Routes>
+            <Route element={<PrivateRoute />}>
+              <Route path="/payment" element={<PaymentPage />} />
+            </Route>
+          </Routes>
+        </Elements>
+      )}
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/sign-in" element={<SignIn />} />
@@ -83,9 +111,8 @@ export default function App() {
           <Route path="/dashboard-events" element={<ShopAllEvents />} />
           <Route path="/dashboard-create-event" element={<ShopCreateEvent />} />
           <Route path="/dashboard-coupon" element={<ShopAllCoupons />} />
+          <Route path="/order/success" element={<OrderSuccessPage />} />
         </Route>
-        {/* payment route */}
-        <Route path="/payment" element={<PaymentPage />} />
       </Routes>
       <ToastContainer
         position="bottom-center"

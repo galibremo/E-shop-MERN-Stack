@@ -7,6 +7,8 @@ import errorHandler from "./middleware/error.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import couponRouter from "./routers/coupon.router.js";
+import paymentRouter from "./routers/payment.router.js";
+import orderRouter from "./routers/order.router.js";
 
 const app = express();
 
@@ -23,6 +25,8 @@ app.use("/api/shop", shopRouter);
 app.use("/api/product", productRouter);
 app.use("/api/event", eventRouter);
 app.use("/api/coupon", couponRouter);
+app.use("/api/payment", paymentRouter);
+app.use("/api/order", orderRouter);
 app.use(errorHandler);
 
 export default app;
