@@ -29,14 +29,11 @@ export default function EventCard({ data }) {
         <CountDown data={data} />
         <br />
         <div className="flex items-center">
-          <Link to={`/event/${data?._id}`}>
+          <Link to={`/product/${data?._id}?isEvent=true`}>
             <div className="w-[150px] bg-black h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer text-[#fff]">
               See Details
             </div>
           </Link>
-          <div className="w-[150px] bg-black h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer text-[#fff] ml-5">
-            Add to cart
-          </div>
         </div>
       </div>
     </div>

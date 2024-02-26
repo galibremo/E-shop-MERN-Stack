@@ -35,9 +35,53 @@ export default function Payment() {
     totalPrice: orderData?.totalPrice,
   };
 
-  function createOrder(data, actions) {}
-  function onApprove(data, actions) {}
-  function paypalPaymentHandler(data, actions) {}
+  function createOrder(data, actions) {
+    return actions.order
+      .create({
+        purchase_units: [
+          {
+            description: "Sunflower",
+            amount: {
+              currency_code: "USD",
+              value: orderData?.totalPrice,
+            },
+          },
+        ],
+        // not needed if a shipping address is actually needed
+        application_context: {
+          shipping_preference: "NO_SHIPPING",
+        },
+      })
+      .then((orderID) => {
+        return orderID;
+      });
+  }
+  function onApprove(data, actions) {
+    return actions.order.capture().then((details) => {
+      const { payer } = details;
+
+      let paymentInfo = payer;
+
+      if (paymentInfo !== undefined) {
+        paypalPaymentHandler(paymentInfo);
+      }
+    });
+  }
+  async function paypalPaymentHandler(paymentInfo) {
+    order.paymentInfo = {
+      id: paymentInfo.payer_id,
+      status: "succeeded",
+      type: "Paypal",
+    };
+
+    await axios.post("/api/order/create-order", order).then((res) => {
+      setOpen(false);
+      navigate("/order/success");
+      toast.success("Order successful!");
+      dispatch(emptyCartItem());
+    });
+  }
+
   const paymentData = {
     amount: Math.round(orderData?.totalPrice * 100),
     name: orderData?.name,
@@ -122,6 +166,8 @@ const PaymentInfo = ({
   currentUser,
   open,
   setOpen,
+  onApprove,
+  createOrder,
   cashOnDeliveryHandler,
 }) => {
   const [select, setSelect] = useState(1);
@@ -273,7 +319,7 @@ const PaymentInfo = ({
                   <PayPalScriptProvider
                     options={{
                       "client-id":
-                        "Aczac4Ry9_QA1t4c7TKH9UusH3RTe6onyICPoCToHG10kjlNdI-qwobbW9JAHzaRQwFMn2-k660853jn",
+                        "AbaQR8x6uZ-vZesmH7BnW4N35jdrHFgjTLnqQkD0NGGd_M2vlMoWKcaJoTXI-jskt9iM26xoEinSrhDA",
                     }}
                   >
                     <PayPalButtons
