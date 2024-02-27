@@ -26,6 +26,7 @@ import {
 import { toast } from "react-toastify";
 import axios from "axios";
 import { Country, State } from "country-state-city";
+import { getAllOrdersOfUser } from "../redux/actions/orderAction.js";
 
 export default function ProfileContent({ active }) {
   const { currentUser, loading, error } = useSelector((state) => state.user);
@@ -240,18 +241,14 @@ export default function ProfileContent({ active }) {
 }
 
 function AllOrders() {
-  const orders = [
-    {
-      _id: "we7e587e809oifhkjdhfdsf",
-      orderItems: [
-        {
-          name: "Iphone 16 pro max",
-        },
-      ],
-      totalPrice: 123,
-      orderStatus: "processing",
-    },
-  ];
+  const { currentUser } = useSelector((state) => state.user);
+  const { orders } = useSelector((state) => state.orders);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getAllOrdersOfUser(currentUser._id));
+  }, []);
+
   const columns = [
     { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
 
@@ -309,9 +306,9 @@ function AllOrders() {
     orders.forEach((item) => {
       row.push({
         id: item._id,
-        itemsQty: item.orderItems.length,
+        itemsQty: item.cart.length,
         total: "US$ " + item.totalPrice,
-        status: item.orderStatus,
+        status: item.status,
       });
     });
   return (

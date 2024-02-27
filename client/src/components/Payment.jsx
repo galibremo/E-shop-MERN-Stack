@@ -116,18 +116,24 @@ export default function Payment() {
         toast.error(result.error.message);
       } else {
         if (result.paymentIntent.status === "succeeded") {
-          order.paymnentInfo = {
+          order.paymentInfo = {
             id: result.paymentIntent.id,
             status: result.paymentIntent.status,
             type: "Credit Card",
           };
 
-          await axios.post("/api/order/create-order", order).then((res) => {
-            setOpen(false);
-            navigate("/order/success");
-            toast.success("Order successful!");
-            dispatch(emptyCartItem());
-          });
+          await axios
+            .post("/api/order/create-order", order, {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            })
+            .then((res) => {
+              setOpen(false);
+              navigate("/order/success");
+              toast.success("Order successful!");
+              dispatch(emptyCartItem());
+            });
         }
       }
     } catch (error) {
