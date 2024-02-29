@@ -39,6 +39,8 @@ import { loadStripe } from "@stripe/stripe-js";
 import axios from "axios";
 import { toast } from "react-toastify";
 import OrderSuccessPage from "./pages/OrderSuccessPage";
+import ShopOrderDetailsPage from "./pages/ShopOrderDetailsPage";
+import OrderDetailsPage from "./pages/OrderDetailsPage";
 
 export default function App() {
   const [stripeApikey, setStripeApiKey] = useState("");
@@ -92,15 +94,18 @@ export default function App() {
         {/* user private route */}
         <Route element={<PrivateRoute />}>
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/user/order/:id" element={<OrderDetailsPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
         </Route>
         {/* shop route */}
         <Route path="/shop-create" element={<ShopCreatePage />} />
         <Route path="/shop-login" element={<ShopLoginPage />} />
         <Route path="/shop/preview/:id" element={<ShopPreviewPage />} />
+        <Route path="/order/success" element={<OrderSuccessPage />} />
         {/* shop private route */}
         <Route element={<SellerPrivateRoute />}>
           <Route path="/shop/:id" element={<ShopHomePage />} />
+          <Route path="/order/:id" element={<ShopOrderDetailsPage />} />
           <Route path="/dashboard" element={<ShopDashboardPage />} />
           <Route path="/dashboard-orders" element={<ShopAllOrders />} />
           <Route path="/dashboard-products" element={<ShopAllProducts />} />
@@ -111,7 +116,6 @@ export default function App() {
           <Route path="/dashboard-events" element={<ShopAllEvents />} />
           <Route path="/dashboard-create-event" element={<ShopCreateEvent />} />
           <Route path="/dashboard-coupon" element={<ShopAllCoupons />} />
-          <Route path="/order/success" element={<OrderSuccessPage />} />
         </Route>
       </Routes>
       <ToastContainer
