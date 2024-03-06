@@ -27,8 +27,9 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { Country, State } from "country-state-city";
 import { getAllOrdersOfUser } from "../redux/actions/orderAction.js";
+import { MdOutlineTrackChanges } from "react-icons/md";
 
-export default function ProfileContent({ active }) {
+export default function ProfileContent({ active, setActive }) {
   const { currentUser, loading, error } = useSelector((state) => state.user);
   const [formData, setFormData] = useState({});
   const [imageFile, setImageFile] = useState(undefined);
@@ -325,18 +326,21 @@ function AllOrders() {
 }
 
 function AllRefundOrders() {
-  const refundOrders = [
-    {
-      _id: "we7e587e809oifhkjdhfdsf",
-      orderItems: [
-        {
-          name: "Iphone 16 pro max",
-        },
-      ],
-      totalPrice: 123,
-      orderStatus: "processing",
-    },
-  ];
+  const { currentUser } = useSelector((state) => state.user);
+  const { orders } = useSelector((state) => state.orders);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getAllOrdersOfUser(currentUser._id));
+  }, []);
+
+  const eligibleOrders =
+    orders &&
+    orders.filter(
+      (item) =>
+        item.status === "Processing refund" || item.status === "Refund Success"
+    );
+
   const columns = [
     { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
 
@@ -390,13 +394,13 @@ function AllRefundOrders() {
 
   const row = [];
 
-  refundOrders &&
-    refundOrders.forEach((item) => {
+  eligibleOrders &&
+    eligibleOrders.forEach((item) => {
       row.push({
         id: item._id,
-        itemsQty: item.orderItems.length,
+        itemsQty: item.cart.length,
         total: "US$ " + item.totalPrice,
-        status: item.orderStatus,
+        status: item.status,
       });
     });
   return (
@@ -413,18 +417,14 @@ function AllRefundOrders() {
 }
 
 function TrackOrder() {
-  const trackOrders = [
-    {
-      _id: "we7e587e809oifhkjdhfdsf",
-      orderItems: [
-        {
-          name: "Iphone 16 pro max",
-        },
-      ],
-      totalPrice: 123,
-      orderStatus: "processing",
-    },
-  ];
+  const { currentUser } = useSelector((state) => state.user);
+  const { orders } = useSelector((state) => state.orders);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getAllOrdersOfUser(currentUser._id));
+  }, []);
+
   const columns = [
     { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
 
@@ -478,13 +478,13 @@ function TrackOrder() {
 
   const row = [];
 
-  trackOrders &&
-    trackOrders.forEach((item) => {
+  orders &&
+    orders.forEach((item) => {
       row.push({
         id: item._id,
-        itemsQty: item.orderItems.length,
+        itemsQty: item.cart.length,
         total: "US$ " + item.totalPrice,
-        status: item.orderStatus,
+        status: item.status,
       });
     });
 

@@ -1,17 +1,19 @@
 import React from "react";
+import AllRefunds from "../components/AllRefunds";
 import DashboardHeader from "../components/ShopLayout/DashboardHeader";
 import DashboardSideBar from "../components/ShopLayout/DashboardSideBar";
-import DashboardHero from "../components/DashboardHero";
 
-export default function ShopDashboardPage() {
+export default function ShopAllRefunds() {
   return (
     <div>
       <DashboardHeader />
-      <div className="flex items-start justify-between w-full">
+      <div className="flex justify-between w-full">
         <div className="w-[80px] lg:w-[330px]">
-          <DashboardSideBar active={1} />
+          <DashboardSideBar active={10} />
         </div>
-        <DashboardHero />
+        <div className="w-full justify-center flex">
+          <AllRefunds />
+        </div>
       </div>
     </div>
   );

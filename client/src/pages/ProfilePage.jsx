@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../components/Layout/Header";
 import ProfileSideBar from "../components/ProfileSideBar";
 import ProfileContent from "../components/ProfileContent";
 
 export default function ProfilePage() {
   const [active, setActive] = useState(1);
+
   return (
     <div>
       <Header />
@@ -12,7 +13,7 @@ export default function ProfilePage() {
         <div className="w-[50px] lg:w-[335px] sticky">
           <ProfileSideBar active={active} setActive={setActive} />
         </div>
-          <ProfileContent active={active} />
+        <ProfileContent active={active} />
       </div>
     </div>
   );

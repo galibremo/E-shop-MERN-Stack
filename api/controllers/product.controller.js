@@ -65,25 +65,27 @@ export const getAllProducts = catchAsyncErrors(async (req, res, next) => {
 
 export const createNewReview = catchAsyncErrors(async (req, res, next) => {
   try {
-    const { user, rating, comment, productId, orderId } = req.body;
+    const { currentUser, rating, comment, productId, orderId } = req.body;
 
     const product = await Product.findById(productId);
 
     const review = {
-      user,
+      user: currentUser,
       rating,
       comment,
       productId,
     };
 
     const isReviewed = product.reviews.find(
-      (rev) => rev.user._id === req.user._id
+      (rev) => rev.currentUser._id === req.user._id
     );
 
     if (isReviewed) {
       product.reviews.forEach((rev) => {
-        if (rev.user._id === req.user._id) {
-          (rev.rating = rating), (rev.comment = comment), (rev.user = user);
+        if (rev.currentUser._id === req.user._id) {
+          (rev.rating = rating),
+            (rev.comment = comment),
+            (rev.user = currentUser);
         }
       });
     } else {
@@ -102,7 +104,12 @@ export const createNewReview = catchAsyncErrors(async (req, res, next) => {
 
     await Order.findByIdAndUpdate(
       orderId,
-      { $set: { "cart.$[elem].isReviewed": true } },
+      {
+        $set: {
+          "cart.$[elem].isReviewed": true,
+          "cart.$[elem].reviews": review,
+        },
+      },
       { arrayFilters: [{ "elem._id": productId }], new: true }
     );
 

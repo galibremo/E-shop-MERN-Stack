@@ -51,7 +51,20 @@ export default function UserOrderDetails() {
         toast.error(error);
       });
   }
-  function refundOrderUpdateHandler() {}
+
+  async function refundHandler() {
+    await axios
+      .put(`/api/order/order-refund/${id}`, {
+        status: "Processing refund",
+      })
+      .then((res) => {
+        toast.success(res.data.message);
+        dispatch(getAllOrdersOfUser(currentUser._id));
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      });
+  }
 
   return (
     <div className="py-4 min-h-screen max-w-[90rem] mx-auto">
@@ -85,7 +98,7 @@ export default function UserOrderDetails() {
                 US${item.discountPrice} x {item.qty}
               </h5>
             </div>
-            {data?.status === "Delivered" ? (
+            {!item.isReviewed && data?.status === "Delivered" ? (
               <div
                 className="w-[150px] bg-black h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer text-[#fff]"
                 onClick={() => setOpen(true) || setSelectedItem(item)}
@@ -207,11 +220,20 @@ export default function UserOrderDetails() {
             Status:{" "}
             {data?.paymentInfo?.status ? data?.paymentInfo?.status : "Not Paid"}
           </h4>
+          <br />
+          {data?.status === "Delivered" && (
+            <div
+              className="w-[150px] bg-black h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer text-white"
+              onClick={refundHandler}
+            >
+              Give a Refund
+            </div>
+          )}
         </div>
       </div>
       <br />
       <Link to="/">
-        <div className="w-[150px] bg-black h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer  text-white">
+        <div className="w-[150px] bg-black h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer text-white">
           Send Message
         </div>
       </Link>

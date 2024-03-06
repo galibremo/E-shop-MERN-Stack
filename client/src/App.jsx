@@ -41,6 +41,8 @@ import { toast } from "react-toastify";
 import OrderSuccessPage from "./pages/OrderSuccessPage";
 import ShopOrderDetailsPage from "./pages/ShopOrderDetailsPage";
 import OrderDetailsPage from "./pages/OrderDetailsPage";
+import TrackOrderPage from "./pages/TrackOrderPage";
+import ShopAllRefunds from "./pages/ShopAllRefunds";
 
 export default function App() {
   const [stripeApikey, setStripeApiKey] = useState("");
@@ -95,6 +97,7 @@ export default function App() {
         <Route element={<PrivateRoute />}>
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/user/order/:id" element={<OrderDetailsPage />} />
+          <Route path="/user/track/order/:id" element={<TrackOrderPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
         </Route>
         {/* shop route */}
@@ -116,6 +119,7 @@ export default function App() {
           <Route path="/dashboard-events" element={<ShopAllEvents />} />
           <Route path="/dashboard-create-event" element={<ShopCreateEvent />} />
           <Route path="/dashboard-coupon" element={<ShopAllCoupons />} />
+          <Route path="/dashboard-refunds" element={<ShopAllRefunds />} />
         </Route>
       </Routes>
       <ToastContainer

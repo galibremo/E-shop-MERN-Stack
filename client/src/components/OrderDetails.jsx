@@ -38,7 +38,23 @@ export default function OrderDetails() {
         toast.error(error.response.data.message);
       });
   }
-  function refundOrderUpdateHandler() {}
+  async function refundOrderUpdateHandler(e) {
+    await axios
+      .put(
+        `/api/order/order-refund-success/${id}`,
+        {
+          status,
+        },
+        { withCredentials: true }
+      )
+      .then((res) => {
+        toast.success("Order updated!");
+        dispatch(getAllShopOrders(currentSeller._id));
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message);
+      });
+  }
 
   return (
     <div className="py-4 min-h-screen max-w-[90rem] mx-auto">
@@ -114,7 +130,11 @@ export default function OrderDetails() {
         data?.status !== "Refund Success" && (
           <select
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
+            onChange={(e) =>
+              e.target.value
+                ? setStatus(e.target.value)
+                : setStatus(e.target.value)
+            }
             className="w-[200px] mt-2 border h-[35px] rounded-[5px]"
           >
             {[
@@ -142,10 +162,31 @@ export default function OrderDetails() {
               ))}
           </select>
         )}
+      {data?.status === "Processing refund" ||
+      data?.status === "Refund Success" ? (
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          className="w-[200px] mt-2 border h-[35px] rounded-[5px]"
+        >
+          {["Processing refund", "Refund Success"]
+            .slice(
+              ["Processing refund", "Refund Success"].indexOf(data?.status)
+            )
+            .map((option, index) => (
+              <option value={option} key={index}>
+                {option}
+              </option>
+            ))}
+        </select>
+      ) : null}
+      {/* {!status ? (
+        <span className="text-red-700">Order is {data?.status}</span>
+      ) : null} */}
       <div
         className="w-[150px] my-3 flex items-center justify-center cursor-pointer bg-[#fce1e6] rounded-[4px] text-[#e94560] font-[600] h-[45px] text-[18px]"
         onClick={
-          data?.status !== "Processing refund"
+          status && data?.status !== "Processing refund"
             ? orderUpdateHandler
             : refundOrderUpdateHandler
         }

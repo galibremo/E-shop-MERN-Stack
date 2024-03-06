@@ -11,17 +11,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { addCart } from "../redux/actions/cartAction";
 import { addWishlist, removeWishlist } from "../redux/actions/wishlistAction";
+import Ratings from "./Ratings";
 
 export default function ProductDetails({ data }) {
   const { cart } = useSelector((state) => state.cart);
   const { wishlist } = useSelector((state) => state.wishlist);
+  const { currentUser, isAuthenticated } = useSelector((state) => state.user);
+  const { products } = useSelector((state) => state.products);
   const [count, setCount] = useState(1);
   const [click, setClick] = useState(false);
   const [select, setSelect] = useState(0);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const { products } = useSelector((state) => state.products);
 
   const incrementCount = () => {
     setCount(count + 1);
@@ -41,6 +42,22 @@ export default function ProductDetails({ data }) {
       setClick(false);
     }
   }, [data, wishlist]);
+
+  const totalReviewsLength =
+    products &&
+    products.reduce((acc, product) => acc + product.reviews.length, 0);
+
+  const totalRatings =
+    products &&
+    products.reduce(
+      (acc, product) =>
+        acc + product.reviews.reduce((sum, review) => sum + review.rating, 0),
+      0
+    );
+
+  const avg = totalRatings / totalReviewsLength || 0;
+
+  const averageRating = avg.toFixed(2);
 
   function addToCartHandler(id) {
     const isItemExists = cart && cart.find((i) => i._id === id);
@@ -172,7 +189,7 @@ export default function ProductDetails({ data }) {
                       </h3>
                     </Link>
                     <h5 className="pb-3 text-[15px]">
-                      ({data?.shop?.ratings}) Raatings
+                      ({averageRating}/5) Ratings
                     </h5>
                   </div>
                   <div className="w-[150px] my-3 flex items-center justify-center cursor-pointer bg-[#6443d1] mt-4 !rounded !h-11">
@@ -184,7 +201,7 @@ export default function ProductDetails({ data }) {
               </div>
             </div>
           </div>
-          <ProductDetailsInfo data={data} products={products} />
+          <ProductDetailsInfo data={data} products={products} averageRating={averageRating} />
           <br />
           <br />
         </div>
@@ -193,7 +210,7 @@ export default function ProductDetails({ data }) {
   );
 }
 
-const ProductDetailsInfo = ({ data, products }) => {
+const ProductDetailsInfo = ({ data, products, averageRating }) => {
   const [active, setActive] = useState(1);
   return (
     <div className="bg-[#f5f6fb] px-3 lg:px-10 py-2 rounded">
@@ -240,8 +257,30 @@ const ProductDetailsInfo = ({ data, products }) => {
         </>
       ) : null}
       {active === 2 ? (
-        <div className="w-full flex items-center justify-center min-h-[40vh]">
-          <p>No Reviews Yet</p>
+        <div className="w-full min-h-[40vh] flex flex-col items-center py-3 overflow-y-scroll">
+          {data &&
+            data.reviews.map((item, index) => (
+              <div className="w-full flex my-2" key={index}>
+                <img
+                  src={`${item.user.avatar}`}
+                  alt=""
+                  className="w-[50px] h-[50px] rounded-full"
+                />
+                <div className="pl-2 ">
+                  <div className="w-full flex items-center">
+                    <h1 className="font-[500] mr-3">{item.user.name}</h1>
+                    <Ratings rating={data?.ratings} />
+                  </div>
+                  <p>{item.comment}</p>
+                </div>
+              </div>
+            ))}
+
+          <div className="w-full flex justify-center">
+            {data && data.reviews.length === 0 && (
+              <h5>No Reviews have for this product!</h5>
+            )}
+          </div>
         </div>
       ) : null}
       {active === 3 ? (
@@ -258,7 +297,7 @@ const ProductDetailsInfo = ({ data, products }) => {
                   {data.shop.name}
                 </h3>
                 <h5 className="pb-2 text-[15px]">
-                  ({data.shop.ratings}) Ratings
+                  ({averageRating}/5) Ratings
                 </h5>
               </div>
             </div>
