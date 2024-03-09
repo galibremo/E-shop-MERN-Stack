@@ -122,3 +122,30 @@ export const getShopInfo = catchAsyncErrors(async (req, res, next) => {
     return next(errorHandler(500, error.message));
   }
 });
+
+export const updateShopInfo = catchAsyncErrors(async (req, res, next) => {
+  if (req.shop.id !== req.params.id) {
+    return next(errorHandler(401, "You can only update your own account!"));
+  }
+
+  try {
+    const updatedShop = await Shop.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          name: req.body.name,
+          address: req.body.address,
+          description: req.body.description,
+          phoneNumber: req.body.phoneNumber,
+          zipCode: req.body.zipCode,
+          avatar: req.body.avatar,
+        },
+      },
+      { new: true }
+    );
+
+    res.status(200).json(updatedShop);
+  } catch (error) {
+    next(error);
+  }
+});

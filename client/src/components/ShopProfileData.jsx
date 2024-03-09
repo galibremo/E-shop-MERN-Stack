@@ -19,6 +19,9 @@ export default function ShopProfileData({ isOwner }) {
 
   const [active, setActive] = useState(1);
 
+  const allReviews =
+    products && products.map((product) => product.reviews).flat();
+
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">
@@ -96,13 +99,13 @@ export default function ShopProfileData({ isOwner }) {
         </div>
       )}
 
-      {/* {active === 3 && (
+      {active === 3 && (
         <div className="w-full">
           {allReviews &&
             allReviews.map((item, index) => (
               <div className="w-full flex my-4">
                 <img
-                  src={`${item.user.avatar?.url}`}
+                  src={`${item.user.avatar}`}
                   className="w-[50px] h-[50px] rounded-full"
                   alt=""
                 />
@@ -122,7 +125,7 @@ export default function ShopProfileData({ isOwner }) {
             </h5>
           )}
         </div>
-      )} */}
+      )}
     </div>
   );
 }

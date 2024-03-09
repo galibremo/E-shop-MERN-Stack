@@ -317,3 +317,16 @@ export const deleteUserAddress = catchAsyncErrors(async (req, res, next) => {
     return next(errorHandler(500, error.message));
   }
 });
+
+export const getUserInfoWithId = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    res.status(201).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    return next(errorHandler(500, error.message));
+  }
+});

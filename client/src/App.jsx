@@ -43,6 +43,10 @@ import ShopOrderDetailsPage from "./pages/ShopOrderDetailsPage";
 import OrderDetailsPage from "./pages/OrderDetailsPage";
 import TrackOrderPage from "./pages/TrackOrderPage";
 import ShopAllRefunds from "./pages/ShopAllRefunds";
+import ShopSettingsPage from "./pages/ShopSettingsPage";
+import ShopWithdrawMoney from "./pages/ShopWithdrawMoney";
+import ShopInboxPage from "./pages/ShopInboxPage";
+import UserInbox from "./pages/UserInbox";
 
 export default function App() {
   const [stripeApikey, setStripeApiKey] = useState("");
@@ -111,7 +115,12 @@ export default function App() {
           <Route path="/order/:id" element={<ShopOrderDetailsPage />} />
           <Route path="/dashboard" element={<ShopDashboardPage />} />
           <Route path="/dashboard-orders" element={<ShopAllOrders />} />
+          <Route
+            path="/dashboard-withdraw-money"
+            element={<ShopWithdrawMoney />}
+          />
           <Route path="/dashboard-products" element={<ShopAllProducts />} />
+          <Route path="/settings" element={<ShopSettingsPage />} />
           <Route
             path="/dashboard-create-product"
             element={<ShopCreateProduct />}
@@ -120,6 +129,8 @@ export default function App() {
           <Route path="/dashboard-create-event" element={<ShopCreateEvent />} />
           <Route path="/dashboard-coupon" element={<ShopAllCoupons />} />
           <Route path="/dashboard-refunds" element={<ShopAllRefunds />} />
+          <Route path="/dashboard-messages" element={<ShopInboxPage />} />
+          <Route path="/inbox" element={<UserInbox />} />
         </Route>
       </Routes>
       <ToastContainer

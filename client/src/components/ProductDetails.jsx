@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import { addCart } from "../redux/actions/cartAction";
 import { addWishlist, removeWishlist } from "../redux/actions/wishlistAction";
 import Ratings from "./Ratings";
+import axios from "axios";
 
 export default function ProductDetails({ data }) {
   const { cart } = useSelector((state) => state.cart);
@@ -82,6 +83,28 @@ export default function ProductDetails({ data }) {
   function addToWishlistHandler(data) {
     setClick(!click);
     dispatch(addWishlist(data));
+  }
+
+  async function handleMessageSubmit() {
+    if (isAuthenticated) {
+      const groupTitle = data._id + currentUser._id;
+      const userId = currentUser._id;
+      const sellerId = data.shop._id;
+      await axios
+        .post("/api/conversation/create-new-conversation", {
+          groupTitle,
+          userId,
+          sellerId,
+        })
+        .then((res) => {
+          navigate(`/inbox?${res.data.conversation._id}`);
+        })
+        .catch((error) => {
+          toast.error(error.response.data.message);
+        });
+    } else {
+      toast.error("Please login to create a conversation");
+    }
   }
 
   return (
@@ -192,7 +215,10 @@ export default function ProductDetails({ data }) {
                       ({averageRating}/5) Ratings
                     </h5>
                   </div>
-                  <div className="w-[150px] my-3 flex items-center justify-center cursor-pointer bg-[#6443d1] mt-4 !rounded !h-11">
+                  <div
+                    className="w-[150px] my-3 flex items-center justify-center cursor-pointer bg-[#6443d1] mt-4 rounded h-11"
+                    onClick={handleMessageSubmit}
+                  >
                     <span className="text-white flex items-center">
                       Send Message <AiOutlineMessage className="ml-1" />
                     </span>
@@ -201,7 +227,11 @@ export default function ProductDetails({ data }) {
               </div>
             </div>
           </div>
-          <ProductDetailsInfo data={data} products={products} averageRating={averageRating} />
+          <ProductDetailsInfo
+            data={data}
+            products={products}
+            averageRating={averageRating}
+          />
           <br />
           <br />
         </div>

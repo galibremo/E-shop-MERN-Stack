@@ -9,6 +9,8 @@ import cookieParser from "cookie-parser";
 import couponRouter from "./routers/coupon.router.js";
 import paymentRouter from "./routers/payment.router.js";
 import orderRouter from "./routers/order.router.js";
+import conversationRouter from "./routers/conversation.router.js";
+import messageRouter from "./routers/message.router.js";
 
 const app = express();
 
@@ -27,6 +29,8 @@ app.use("/api/event", eventRouter);
 app.use("/api/coupon", couponRouter);
 app.use("/api/payment", paymentRouter);
 app.use("/api/order", orderRouter);
+app.use("/api/conversation", conversationRouter);
+app.use("/api/message", messageRouter);
 app.use(errorHandler);
 
 export default app;
