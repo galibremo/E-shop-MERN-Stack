@@ -111,8 +111,9 @@ export const updateOrderStatus = catchAsyncErrors(async (req, res, next) => {
 
     async function updateSellerInfo(amount) {
       const seller = await Shop.findById(req.shop.id);
+      console.log(seller);
 
-      seller.availableBalance = amount;
+      seller.availableBalance += amount;
 
       await seller.save();
     }
@@ -174,6 +175,21 @@ export const acceptRefund = catchAsyncErrors(async (req, res, next) => {
 
       await product.save({ validateBeforeSave: false });
     }
+  } catch (error) {
+    return next(errorHandler(500, error.message));
+  }
+});
+
+export const adminAllOrder = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const orders = await Order.find().sort({
+      deliveredAt: -1,
+      createdAt: -1,
+    });
+    res.status(201).json({
+      success: true,
+      orders,
+    });
   } catch (error) {
     return next(errorHandler(500, error.message));
   }

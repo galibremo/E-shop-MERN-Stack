@@ -37,6 +37,20 @@ const sellerSlice = createSlice({
       state.error = action.payload;
       state.loading = false;
     },
+    getAllSellersRequest: (state) => {
+      state.loading = true;
+    },
+    getAllSellersSuccess: (state, action) => {
+      state.loading = false;
+      state.sellers = action.payload;
+    },
+    getAllSellerFailed: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    clearErrors: (state) => {
+      state.error = null;
+    },
   },
 });
 
@@ -47,6 +61,9 @@ export const {
   signOutSellerStart,
   signOutSellerSuccess,
   signOutSellerFailure,
+  getAllSellersRequest,
+  getAllSellersSuccess,
+  getAllSellerFailed,
 } = sellerSlice.actions;
 
 export default sellerSlice.reducer;

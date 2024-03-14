@@ -64,3 +64,17 @@ export const getAllEvents = catchAsyncErrors(async (req, res, next) => {
     return next(errorHandler(400, error));
   }
 });
+
+export const adminGetAllEvents = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const events = await Event.find().sort({
+      createdAt: -1,
+    });
+    res.status(201).json({
+      success: true,
+      events,
+    });
+  } catch (error) {
+    return next(errorHandler(500, error.message));
+  }
+});

@@ -15,6 +15,9 @@ import {
   deleteUserAddressRequest,
   deleteUserAddressSuccess,
   deleteUserAddressFailed,
+  getAllUsersRequest,
+  getAllUsersSuccess,
+  getAllUsersFailed,
 } from "../reducers/userSlice";
 import {
   LoadSellerRequest,
@@ -122,5 +125,18 @@ export const deleteUserAddress = (id) => async (dispatch) => {
   } catch (error) {
     dispatch(deleteUserAddressFailed(error.message));
     toast.error(error.message);
+  }
+};
+
+export const getAllUsers = () => async (dispatch) => {
+  try {
+    dispatch(getAllUsersRequest());
+    const { data } = await axios.get(`/api/auth/admin-all-users`, {
+      withCredentials: true,
+    });
+
+    dispatch(getAllUsersSuccess(data.users));
+  } catch (error) {
+    dispatch(getAllUsersFailed(error.response.data.message));
   }
 };

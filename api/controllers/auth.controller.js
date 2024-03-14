@@ -330,3 +330,36 @@ export const getUserInfoWithId = catchAsyncErrors(async (req, res, next) => {
     return next(errorHandler(500, error.message));
   }
 });
+// all users --- for admin
+export const adminGetAllUser = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const users = await User.find().sort({
+      createdAt: -1,
+    });
+    res.status(201).json({
+      success: true,
+      users,
+    });
+  } catch (error) {
+    return next(errorHandler(500, error.message));
+  }
+});
+
+export const adminDeleteUser = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return next(errorHandler(400, "User is not available with this id"));
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+
+    res.status(201).json({
+      success: true,
+      message: "User deleted successfully!",
+    });
+  } catch (error) {
+    return next(errorHandler(500, error.message));
+  }
+});

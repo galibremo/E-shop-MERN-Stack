@@ -10,6 +10,13 @@ import socketIO from "socket.io-client";
 const socketId = socketIO("http://localhost:4000", {
   transports: ["websocket"],
 });
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytesResumable,
+} from "firebase/storage";
+import { app } from "../firebase.js";
 
 export default function DashboardMessages() {
   const { currentSeller, loading } = useSelector((state) => state.seller);
@@ -21,7 +28,6 @@ export default function DashboardMessages() {
   const [newMessage, setNewMessage] = useState("");
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [activeStatus, setActiveStatus] = useState(false);
-  const [images, setImages] = useState();
   const [open, setOpen] = useState(false);
   const scrollRef = useRef(null);
 
@@ -147,7 +153,60 @@ export default function DashboardMessages() {
       });
   };
 
-  const handleImageUpload = async (e) => {};
+  function handleImageSubmit(e) {
+    if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
+      setUploading(true);
+      setImageUploadError(false);
+      const promises = [];
+      for (let i = 0; i < files.length; i++) {
+        promises.push(storeImage(files[i]));
+      }
+      Promise.all(promises)
+        .then((urls) => {
+          setFormData({
+            ...formData,
+            imageUrls: formData.imageUrls.concat(urls),
+          });
+          setImageUploadError(false);
+          setUploading(false);
+        })
+        .catch((err) => {
+          setImageUploadError("Image upload failed (2 mb max per image)");
+          setUploading(false);
+        });
+    } else {
+      setImageUploadError("You can only upload 6 images per listing");
+      setUploading(false);
+    }
+  }
+  async function storeImage(file) {
+    return new Promise((resolve, reject) => {
+      const storage = getStorage(app);
+      const fileName = new Date().getTime() + file.name;
+      const storageRef = ref(storage, fileName);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Upload is ${progress}% done`);
+        },
+        (error) => {
+          reject(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            resolve(downloadURL);
+          });
+        }
+      );
+    });
+  }
+
+  const imageSendingHandler = async (e) => {};
+
+  const updateLastMessageForImage = async () => {};
 
   return (
     <div className="w-[90%] bg-white m-5 h-[85vh] overflow-y-scroll rounded">
@@ -188,7 +247,6 @@ export default function DashboardMessages() {
           activeStatus={activeStatus}
           scrollRef={scrollRef}
           setMessages={setMessages}
-          handleImageUpload={handleImageUpload}
         />
       )}
     </div>
@@ -276,7 +334,6 @@ const SellerInbox = ({
   sellerId,
   userData,
   activeStatus,
-  handleImageUpload,
 }) => {
   return (
     <div className="w-full min-h-full flex flex-col justify-between">
@@ -319,12 +376,15 @@ const SellerInbox = ({
                     alt=""
                   />
                 )}
-                {item.images && (
-                  <img
-                    src={item.imageUrls}
-                    className="w-[300px] h-[300px] object-cover rounded-[10px] mr-2"
-                  />
-                )}
+                {item.imageUrls &&
+                  item.imageUrls.map((imageUrl, index) => (
+                    <img
+                      key={index} // Important for performance with multiple elements
+                      src={imageUrl}
+                      className="w-[300px] h-[300px] object-cover rounded-[10px] mr-2"
+                      alt="" // Add alt text for accessibility
+                    />
+                  ))}
                 {item.text !== "" && (
                   <div>
                     <div
@@ -346,6 +406,7 @@ const SellerInbox = ({
       </div>
 
       {/* send message input */}
+
       <form
         aria-required={true}
         className="p-3 relative w-full flex justify-between items-center"
@@ -356,7 +417,8 @@ const SellerInbox = ({
             type="file"
             id="image"
             className="hidden"
-            onChange={handleImageUpload}
+            accept="image/*"
+            multiple
           />
           <label htmlFor="image">
             <TfiGallery className="cursor-pointer" size={20} />

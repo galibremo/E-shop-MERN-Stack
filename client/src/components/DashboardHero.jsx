@@ -7,6 +7,7 @@ import { getAllShopOrders } from "../redux/actions/orderAction";
 import { getAllProductsShop } from "../redux/actions/productAction";
 import { Button } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
+import { loadSeller } from "../redux/actions/userAction";
 
 export default function DashboardHero() {
   const { orders } = useSelector((state) => state.orders);
@@ -16,6 +17,7 @@ export default function DashboardHero() {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    dispatch(loadSeller());
     dispatch(getAllShopOrders(currentSeller._id));
     dispatch(getAllProductsShop(currentSeller._id));
   }, [dispatch]);

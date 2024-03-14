@@ -47,6 +47,11 @@ import ShopSettingsPage from "./pages/ShopSettingsPage";
 import ShopWithdrawMoney from "./pages/ShopWithdrawMoney";
 import ShopInboxPage from "./pages/ShopInboxPage";
 import UserInbox from "./pages/UserInbox";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
+import AdminPrivateRoute from "./AdminPrivateRoute";
+import AdminDashboardUsers from "./pages/AdminDashboardUsers";
+import AdminDashboardOrder from "./pages/AdminDashboardOrder";
+import AdminDashboardWithdraw from "./pages/AdminDashboardWithdraw";
 
 export default function App() {
   const [stripeApikey, setStripeApiKey] = useState("");
@@ -132,10 +137,19 @@ export default function App() {
           <Route path="/dashboard-messages" element={<ShopInboxPage />} />
           <Route path="/inbox" element={<UserInbox />} />
         </Route>
+        <Route element={<AdminPrivateRoute />}>
+          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+          <Route path="/admin-users" element={<AdminDashboardUsers />} />
+          <Route path="/admin-orders" element={<AdminDashboardOrder />} />
+          <Route
+            path="/admin-withdraw-request"
+            element={<AdminDashboardWithdraw />}
+          />
+        </Route>
       </Routes>
       <ToastContainer
         position="bottom-center"
-        autoClose={5000}
+        autoClose={4000}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick

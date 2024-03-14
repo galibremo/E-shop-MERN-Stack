@@ -15,8 +15,8 @@ export default function WithdrawMoney() {
   const [bankInfo, setBankInfo] = useState({
     bankName: "",
     bankCountry: "",
-    bankSwiftCode: null,
-    bankAccountNumber: null,
+    bankSwiftCode: "",
+    bankAccountNumber: 0,
     bankHolderName: "",
     bankAddress: "",
   });
@@ -27,20 +27,67 @@ export default function WithdrawMoney() {
   }, [dispatch]);
 
   function handleChange(e) {
-    const [id, value] = e.target;
+    const { id, value } = e.target;
     setBankInfo({
       ...bankInfo,
       [id]: value,
     });
   }
 
-  function withdrawHandler() {}
-
-  function deleteHandler() {}
-
-  function handleSubmit(e) {
-    e.preventDefault();
+  async function withdrawHandler() {
+    if (withdrawAmount < 50 || withdrawAmount > availableBalance) {
+      toast.error("You can't withdraw this amount!");
+    } else {
+      const amount = withdrawAmount;
+      await axios
+        .post(
+          `/api/withdraw/create-withdraw-request`,
+          { amount },
+          { withCredentials: true }
+        )
+        .then((res) => {
+          toast.success("Withdraw money request is successful!");
+        });
+    }
   }
+
+  async function deleteHandler() {
+    await axios
+      .delete(`/api/shop/delete-withdraw-method`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        toast.success("Withdraw method deleted successfully!");
+        dispatch(loadSeller());
+      });
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setPaymentMethod(false);
+
+    await axios
+      .put(`/api/shop/update-payment-methods`, bankInfo, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        toast.success("Withdraw method added successfully!");
+        dispatch(loadSeller());
+        setBankInfo({
+          bankName: "",
+          bankCountry: "",
+          bankSwiftCode: 0,
+          bankAccountNumber: 0,
+          bankHolderName: "",
+          bankAddress: "",
+        });
+      })
+      .catch((error) => {
+        console.log(error.response.data.message);
+      });
+  }
+
+  const availableBalance = currentSeller?.availableBalance?.toFixed(2);
 
   return (
     <div className="w-full h-[90vh] p-8">
@@ -165,7 +212,7 @@ export default function WithdrawMoney() {
 
                   <button
                     type="submit"
-                    className="w-full border p-1 rounded-[5px] mt-3 text-white"
+                    className="w-[150px] bg-black h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer text-[18px] mt-4 mb-3 text-white"
                   >
                     Add
                   </button>
@@ -191,7 +238,9 @@ export default function WithdrawMoney() {
                               -3
                             )}
                         </h5>
-                        <h5>Bank Name: {seller?.withdrawMethod.bankName}</h5>
+                        <h5>
+                          Bank Name: {currentSeller?.withdrawMethod.bankName}
+                        </h5>
                       </div>
                       <div className="lg:w-[50%]">
                         <AiOutlineDelete
@@ -213,7 +262,7 @@ export default function WithdrawMoney() {
                         className="lg:w-[100px] w-[full] border lg:mr-3 p-1 rounded"
                       />
                       <div
-                        className="w-full border p-1 rounded-[5px] h-[42px] text-white"
+                        className="w-[150px] bg-black my-3 flex items-center justify-center rounded-xl cursor-pointer h-[42px] text-white"
                         onClick={withdrawHandler}
                       >
                         Withdraw
@@ -227,7 +276,7 @@ export default function WithdrawMoney() {
                     </p>
                     <div className="w-full flex items-center">
                       <div
-                        className="w-full border p-1 rounded-[5px] text-[#fff] text-[18px] mt-4"
+                        className="w-[150px] bg-black h-[50px] my-3 flex items-center justify-center rounded-xl cursor-pointer text-[#fff] text-[18px] mt-4"
                         onClick={() => setPaymentMethod(true)}
                       >
                         Add new

@@ -11,6 +11,7 @@ import paymentRouter from "./routers/payment.router.js";
 import orderRouter from "./routers/order.router.js";
 import conversationRouter from "./routers/conversation.router.js";
 import messageRouter from "./routers/message.router.js";
+import withdrawRouter from "./routers/withdraw.router.js";
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use("/api/payment", paymentRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/conversation", conversationRouter);
 app.use("/api/message", messageRouter);
+app.use("/api/withdraw", withdrawRouter);
 app.use(errorHandler);
 
 export default app;

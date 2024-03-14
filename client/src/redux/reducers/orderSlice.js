@@ -32,6 +32,17 @@ const orderSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    adminAllOrdersRequest: (state) => {
+      state.loading = true;
+    },
+    adminAllOrdersSuccess: (state, action) => {
+      state.loading = false;
+      state.adminOrders = action.payload;
+    },
+    adminAllOrdersFailed: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
   },
 });
 
@@ -42,6 +53,9 @@ export const {
   getAllOrdersShopRequest,
   getAllOrdersShopSuccess,
   getAllOrdersShopFailed,
+  adminAllOrdersRequest,
+  adminAllOrdersSuccess,
+  adminAllOrdersFailed,
 } = orderSlice.actions;
 
 export default orderSlice.reducer;

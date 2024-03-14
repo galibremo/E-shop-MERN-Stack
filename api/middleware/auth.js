@@ -27,10 +27,21 @@ export const isSeller = catchAsyncErrors(async (req, res, next) => {
   }
 
   try {
-    const decoded = await jwt.verify(seller_token, process.env.JWT_SECRET_KEY);
+    const decoded = jwt.verify(seller_token, process.env.JWT_SECRET_KEY);
     req.shop = await Shop.findById(decoded.id);
   } catch (err) {
     next(err);
   }
   next();
 });
+
+export const isAdmin = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        errorHandler(500, `${req.user.role} can not access this resources!`)
+      );
+    }
+    next();
+  };
+};

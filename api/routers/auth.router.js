@@ -12,8 +12,10 @@ import {
   updateUserAddress,
   deleteUserAddress,
   getUserInfoWithId,
+  adminGetAllUser,
+  adminDeleteUser,
 } from "../controllers/auth.controller.js";
-import { isAuthenticated } from "../middleware/auth.js";
+import { isAdmin, isAuthenticated } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -29,5 +31,17 @@ router.put("/update-user-password/:id", isAuthenticated, updateUserPassword);
 router.put("/update-user-address", isAuthenticated, updateUserAddress);
 router.delete("/delete-user-address/:id", isAuthenticated, deleteUserAddress);
 router.get("/user-info/:id", getUserInfoWithId);
+router.get(
+  "/admin-all-users",
+  isAuthenticated,
+  isAdmin("Admin"),
+  adminGetAllUser
+);
+router.delete(
+  "/admin-delete-user/:id",
+  isAuthenticated,
+  isAdmin("Admin"),
+  adminDeleteUser
+);
 
 export default router;

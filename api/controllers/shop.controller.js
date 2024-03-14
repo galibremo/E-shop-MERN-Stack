@@ -149,3 +149,85 @@ export const updateShopInfo = catchAsyncErrors(async (req, res, next) => {
     next(error);
   }
 });
+
+// all sellers --- for admin
+export const adminAllSeller = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const sellers = await Shop.find().sort({
+      createdAt: -1,
+    });
+    res.status(201).json({
+      success: true,
+      sellers,
+    });
+  } catch (error) {
+    return next(errorHandler(500, error.message));
+  }
+});
+
+// // delete seller ---admin
+// router.delete(
+//   "/delete-seller/:id",
+//   isAuthenticated,
+//   isAdmin("Admin"),
+//   catchAsyncErrors(async (req, res, next) => {
+//     try {
+//       const seller = await Shop.findById(req.params.id);
+
+//       if (!seller) {
+//         return next(
+//           new ErrorHandler("Seller is not available with this id", 400)
+//         );
+//       }
+
+//       await Shop.findByIdAndDelete(req.params.id);
+
+//       res.status(201).json({
+//         success: true,
+//         message: "Seller deleted successfully!",
+//       });
+//     } catch (error) {
+//       return next(new ErrorHandler(error.message, 500));
+//     }
+//   })
+// );
+
+// update seller withdraw methods --- sellers
+export const updatePaymentMethodes = catchAsyncErrors(
+  async (req, res, next) => {
+    try {
+      const seller = await Shop.findByIdAndUpdate(req.shop._id, {
+        withdrawMethod: req.body,
+      });
+
+      res.status(201).json({
+        success: true,
+        seller,
+      });
+    } catch (error) {
+      return next(errorHandler(500, error.message));
+    }
+  }
+);
+
+// delete seller withdraw merthods --- only seller
+export const deleteWithdrawMethod = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const seller = await Shop.findById(req.shop._id);
+
+    if (!seller) {
+      return next(errorHandler(400, "Seller not found with this id"));
+    }
+
+    seller.withdrawMethod = null;
+
+    await seller.save();
+
+    res.status(201).json({
+      success: true,
+      seller,
+    });
+  } catch (error) {
+    return next(errorHandler(500, error.message));
+  }
+});

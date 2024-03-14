@@ -7,6 +7,9 @@ import {
   getAllOrdersShopRequest,
   getAllOrdersShopSuccess,
   getAllOrdersShopFailed,
+  adminAllOrdersRequest,
+  adminAllOrdersSuccess,
+  adminAllOrdersFailed,
 } from "../reducers/orderSlice";
 
 export const getAllOrdersOfUser = (userId) => async (dispatch) => {
@@ -28,5 +31,16 @@ export const getAllShopOrders = (shodId) => async (dispatch) => {
     dispatch(getAllOrdersShopSuccess(data.orders));
   } catch (error) {
     dispatch(getAllOrdersShopFailed(error.response.data.message));
+  }
+};
+export const getAllOrdersOfAdmin = () => async (dispatch) => {
+  try {
+    dispatch(adminAllOrdersRequest());
+    const { data } = await axios.get("/api/order/admin-all-orders", {
+      withCredentials: true,
+    });
+    dispatch(adminAllOrdersSuccess(data.orders));
+  } catch (error) {
+    dispatch(adminAllOrdersFailed(error.response.data.message));
   }
 };
