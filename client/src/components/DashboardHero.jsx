@@ -147,7 +147,7 @@ export default function DashboardHero() {
       </div>
       <br />
       <h3 className="text-[22px] font-Poppins pb-2">Latest Orders</h3>
-      <div className="w-full min-h-[45vh] bg-white rounded">
+      <div className="w-full max-h-[45vh] bg-white rounded overflow-y-scroll">
         <DataGrid
           rows={row}
           columns={columns}

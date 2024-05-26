@@ -6,8 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { AiOutlineArrowRight, AiOutlineSend } from "react-icons/ai";
 import { TfiGallery } from "react-icons/tfi";
 import { format } from "timeago.js";
-import socketIO from "socket.io-client";
-const socketId = socketIO("http://localhost:4000", {
+import { io } from "socket.io-client";
+const socket = io("http://localhost:4000", {
   transports: ["websocket"],
 });
 
@@ -26,7 +26,7 @@ export default function UserInbox() {
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    socketId.on("getMessage", (data) => {
+    socket.on("getMessage", (data) => {
       setArrivalMessage({
         sender: data.senderId,
         text: data.text,
@@ -60,9 +60,9 @@ export default function UserInbox() {
 
   useEffect(() => {
     if (currentUser) {
-      const sellerId = currentUser?._id;
-      socketId.emit("addUser", sellerId);
-      socketId.on("getUsers", (data) => {
+      const userId = currentUser?._id;
+      socket.emit("addUser", userId);
+      socket.on("getUsers", (data) => {
         setOnlineUsers(data);
       });
     }
@@ -75,8 +75,9 @@ export default function UserInbox() {
     const online = onlineUsers.find((user) => user.userId === chatMembers);
     if (online) {
       return true;
+    } else {
+      return false;
     }
-    return false;
   };
 
   useEffect(() => {
@@ -105,7 +106,7 @@ export default function UserInbox() {
       (member) => member !== currentUser._id
     );
 
-    socketId.emit("sendMessage", {
+    socket.emit("sendMessage", {
       senderId: currentUser._id,
       receiverId,
       text: newMessage,
@@ -129,7 +130,7 @@ export default function UserInbox() {
   };
 
   const updateLastMessage = async () => {
-    socketId.emit("updateLastMessage", {
+    socket.emit("updateLastMessage", {
       lastMessage: newMessage,
       lastMessageId: currentUser._id,
     });
@@ -188,7 +189,7 @@ export default function UserInbox() {
           setNewMessage={setNewMessage}
           sendMessageHandler={sendMessageHandler}
           messages={messages}
-          sellerId={currentUser._id}
+          userId={currentUser._id}
           userData={userData}
           activeStatus={activeStatus}
           scrollRef={scrollRef}
@@ -279,21 +280,29 @@ const SellerInbox = ({
   setNewMessage,
   sendMessageHandler,
   messages,
-  sellerId,
+  userId,
   userData,
   activeStatus,
   handleImageUpload,
+  online,
 }) => {
   return (
     <div className="w-[full] min-h-full flex flex-col justify-between p-5">
       {/* message header */}
       <div className="w-full flex p-3 items-center justify-between bg-slate-200">
         <div className="flex">
-          <img
-            src={userData?.avatar}
-            alt=""
-            className="w-[60px] h-[60px] rounded-full"
-          />
+          <div className="relative">
+            <img
+              src={userData?.avatar}
+              alt=""
+              className="w-[50px] h-[50px] rounded-full"
+            />
+            {activeStatus ? (
+              <div className="w-[12px] h-[12px] bg-green-400 rounded-full absolute top-[2px] right-[2px]" />
+            ) : (
+              <div className="w-[12px] h-[12px] bg-[#c7b9b9] rounded-full absolute top-[2px] right-[2px]" />
+            )}
+          </div>
           <div className="pl-3">
             <h1 className="text-[18px] font-[600]">{userData?.name}</h1>
             <h1>{activeStatus ? "Active Now" : ""}</h1>
@@ -314,11 +323,11 @@ const SellerInbox = ({
               <div
                 key={index}
                 className={`flex w-full my-2 ${
-                  item.sender === sellerId ? "justify-end" : "justify-start"
+                  item.sender === userId ? "justify-end" : "justify-start"
                 }`}
                 ref={scrollRef}
               >
-                {item.sender !== sellerId && (
+                {item.sender !== userId && (
                   <img
                     src={userData?.avatar}
                     className="w-[40px] h-[40px] rounded-full mr-3"
@@ -335,7 +344,7 @@ const SellerInbox = ({
                   <div>
                     <div
                       className={`w-max p-2 rounded ${
-                        item.sender === sellerId ? "bg-[#000]" : "bg-[#38c776]"
+                        item.sender === userId ? "bg-[#000]" : "bg-[#38c776]"
                       } text-[#fff] h-min`}
                     >
                       <p>{item.text}</p>

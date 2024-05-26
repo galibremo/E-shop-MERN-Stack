@@ -6,17 +6,18 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 export const paymentProcess = catchAsyncErrors(async (req, res, next) => {
+  const customer = await stripe.customers.create({
+    email: req.body.email,
+    name: req.body.name,
+    address: req.body.address,
+  });
+
   const myPayment = await stripe.paymentIntents.create({
-    description: "Software development services",
+    customer: customer.id,
+    description: process.env.STRIPE_API_KEY,
     shipping: {
-      name: "Jenny Rosen",
-      address: {
-        line1: "510 Townsend St",
-        postal_code: "98140",
-        city: "San Francisco",
-        state: "CA",
-        country: "US",
-      },
+      name: req.body.name,
+      address: req.body.address,
     },
     amount: req.body.amount,
     currency: "inr",
@@ -24,6 +25,7 @@ export const paymentProcess = catchAsyncErrors(async (req, res, next) => {
       company: "galib's farm",
     },
   });
+  console.log(myPayment);
   res.status(200).json({
     success: true,
     client_secret: myPayment.client_secret,

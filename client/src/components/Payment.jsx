@@ -15,6 +15,7 @@ import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { emptyCartItem } from "../redux/actions/cartAction";
 
 export default function Payment() {
+  const [country, setCountry] = useState("");
   const [orderData, setOrderData] = useState([]);
   const [open, setOpen] = useState(false);
   const { currentUser } = useSelector((state) => state.user);
@@ -84,7 +85,9 @@ export default function Payment() {
 
   const paymentData = {
     amount: Math.round(orderData?.totalPrice * 100),
-    name: orderData?.name,
+    name: orderData?.currentUser?.name,
+    email: orderData?.currentUser?.email,
+    country: country,
     address: {
       line1: orderData?.shippingAddress?.address1,
       postal_code: orderData?.shippingAddress?.zipCode,
@@ -173,6 +176,8 @@ export default function Payment() {
               createOrder={createOrder}
               onApprove={onApprove}
               paypalPaymentHandler={paypalPaymentHandler}
+              setCountry={setCountry}
+              country={country}
               paymentHandler={paymentHandler}
               cashOnDeliveryHandler={cashOnDeliveryHandler}
             />
@@ -192,6 +197,8 @@ const PaymentInfo = ({
   open,
   setOpen,
   onApprove,
+  setCountry,
+  country,
   createOrder,
   cashOnDeliveryHandler,
 }) => {
@@ -223,15 +230,24 @@ const PaymentInfo = ({
                   <label className="block pb-2">Name On Card</label>
                   <input
                     required
-                    placeholder={currentUser && currentUser.name}
                     className="border p-1 rounded-[5px] !w-[95%] text-[#444]"
                     defaultValue={currentUser && currentUser.name}
                   />
                 </div>
                 <div className="w-[50%]">
+                  <label className="block pb-2">Email</label>
+                  <input
+                    required
+                    className="border p-1 rounded-[5px] !w-[95%] text-[#444]"
+                    defaultValue={currentUser && currentUser.email}
+                  />
+                </div>
+              </div>
+              <div className="w-full flex pb-3">
+                <div className="w-[50%]">
                   <label className="block pb-2">Exp Date</label>
                   <CardExpiryElement
-                    className="w-full border p-1 rounded-[5px]"
+                    className="border p-1 rounded-[5px] !w-[95%] text-[#444]"
                     options={{
                       style: {
                         base: {
@@ -247,6 +263,15 @@ const PaymentInfo = ({
                         },
                       },
                     }}
+                  />
+                </div>
+                <div className="w-[50%]">
+                  <label className="block pb-2">Country or Region</label>
+                  <input
+                    required
+                    className="border p-1 rounded-[5px] !w-[95%] text-[#444]"
+                    onChange={(e) => setCountry(e.target.value)}
+                    value={country}
                   />
                 </div>
               </div>
@@ -276,7 +301,7 @@ const PaymentInfo = ({
                 <div className="w-[50%]">
                   <label className="block pb-2">CVV</label>
                   <CardCvcElement
-                    className="w-full border p-1 rounded-[5px] h-[35px]"
+                    className="border p-1 rounded-[5px] !w-[95%] text-[#444]"
                     options={{
                       style: {
                         base: {

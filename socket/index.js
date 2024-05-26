@@ -1,12 +1,11 @@
-import { Server as SocketIOServer } from "socket.io";
 import express from "express";
-import http from "http";
 import { createServer } from "http";
+import { Server } from "socket.io";
 import cors from "cors";
 
 const app = express();
-const server = http.createServer(app);
-const io = new SocketIOServer(server);
+const httpServer = createServer(app);
+const io = new Server(httpServer);
 const port = 4000;
 
 app.use(cors());
@@ -43,7 +42,7 @@ const createMessage = ({ senderId, receiverId, text, images }) => ({
 io.on("connection", (socket) => {
   // when connect
   console.log(`a user is connected`);
-
+  console.log(`id : ${socket.id}`);
   // take userId and socketId from user
   socket.on("addUser", (userId) => {
     addUser(userId, socket.id);
@@ -98,7 +97,6 @@ io.on("connection", (socket) => {
       lastMessagesId,
     });
   });
-
   //when disconnect
   socket.on("disconnect", () => {
     console.log(`a user disconnected!`);
@@ -107,6 +105,6 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(port, () => {
+httpServer.listen(port, () => {
   console.log(`server running on ${port}!!`);
 });

@@ -6,8 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { AiOutlineArrowRight, AiOutlineSend } from "react-icons/ai";
 import { TfiGallery } from "react-icons/tfi";
 import { format } from "timeago.js";
-import socketIO from "socket.io-client";
-const socketId = socketIO("http://localhost:4000", {
+import { io } from "socket.io-client";
+const socket = io("http://localhost:4000", {
   transports: ["websocket"],
 });
 import {
@@ -32,7 +32,7 @@ export default function DashboardMessages() {
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    socketId.on("getMessage", (data) => {
+    socket.on("getMessage", (data) => {
       setArrivalMessage({
         sender: data.senderId,
         text: data.text,
@@ -67,8 +67,8 @@ export default function DashboardMessages() {
   useEffect(() => {
     if (currentSeller) {
       const sellerId = currentSeller?._id;
-      socketId.emit("addUser", sellerId);
-      socketId.on("getUsers", (data) => {
+      socket.emit("addUser", sellerId);
+      socket.on("getUsers", (data) => {
         setOnlineUsers(data);
       });
     }
@@ -111,7 +111,7 @@ export default function DashboardMessages() {
       (member) => member.id !== currentSeller._id
     );
 
-    socketId.emit("sendMessage", {
+    socket.emit("sendMessage", {
       senderId: currentSeller._id,
       receiverId,
       text: newMessage,
@@ -135,7 +135,7 @@ export default function DashboardMessages() {
   };
 
   const updateLastMessage = async () => {
-    socketId.emit("updateLastMessage", {
+    socket.emit("updateLastMessage", {
       lastMessage: newMessage,
       lastMessageId: currentSeller._id,
     });
@@ -153,63 +153,24 @@ export default function DashboardMessages() {
       });
   };
 
-  function handleImageSubmit(e) {
-    if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
-      setUploading(true);
-      setImageUploadError(false);
-      const promises = [];
-      for (let i = 0; i < files.length; i++) {
-        promises.push(storeImage(files[i]));
-      }
-      Promise.all(promises)
-        .then((urls) => {
-          setFormData({
-            ...formData,
-            imageUrls: formData.imageUrls.concat(urls),
-          });
-          setImageUploadError(false);
-          setUploading(false);
-        })
-        .catch((err) => {
-          setImageUploadError("Image upload failed (2 mb max per image)");
-          setUploading(false);
-        });
-    } else {
-      setImageUploadError("You can only upload 6 images per listing");
-      setUploading(false);
-    }
-  }
-  async function storeImage(file) {
-    return new Promise((resolve, reject) => {
-      const storage = getStorage(app);
-      const fileName = new Date().getTime() + file.name;
-      const storageRef = ref(storage, fileName);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Upload is ${progress}% done`);
-        },
-        (error) => {
-          reject(error);
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            resolve(downloadURL);
-          });
-        }
-      );
-    });
-  }
+  function handleImageSubmit(e) {}
+
+  async function storeImage(file) {}
 
   const imageSendingHandler = async (e) => {};
 
   const updateLastMessageForImage = async () => {};
 
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ beahaviour: "smooth" });
+  }, [messages]);
+
   return (
-    <div className="w-[90%] bg-white m-5 h-[85vh] overflow-y-scroll rounded">
+    <div
+      className={`w-[90%] bg-white m-5 h-[85vh] rounded ${
+        !open && "overflow-y-scroll"
+      }`}
+    >
       {!open && (
         <>
           <h1 className="text-center text-[30px] py-3 font-Poppins">
@@ -234,7 +195,6 @@ export default function DashboardMessages() {
             ))}
         </>
       )}
-
       {open && (
         <SellerInbox
           setOpen={setOpen}
@@ -340,11 +300,18 @@ const SellerInbox = ({
       {/* message header */}
       <div className="w-full flex p-3 items-center justify-between bg-slate-200">
         <div className="flex">
-          <img
-            src={userData?.avatar}
-            alt=""
-            className="w-[60px] h-[60px] rounded-full"
-          />
+          <div className="relative">
+            <img
+              src={userData?.avatar}
+              alt=""
+              className="w-[50px] h-[50px] rounded-full"
+            />
+            {activeStatus ? (
+              <div className="w-[12px] h-[12px] bg-green-400 rounded-full absolute top-[2px] right-[2px]" />
+            ) : (
+              <div className="w-[12px] h-[12px] bg-[#c7b9b9] rounded-full absolute top-[2px] right-[2px]" />
+            )}
+          </div>
           <div className="pl-3">
             <h1 className="text-[18px] font-[600]">{userData?.name}</h1>
             <h1>{activeStatus ? "Active Now" : ""}</h1>

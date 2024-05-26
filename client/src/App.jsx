@@ -135,8 +135,8 @@ export default function App() {
           <Route path="/dashboard-coupon" element={<ShopAllCoupons />} />
           <Route path="/dashboard-refunds" element={<ShopAllRefunds />} />
           <Route path="/dashboard-messages" element={<ShopInboxPage />} />
-          <Route path="/inbox" element={<UserInbox />} />
         </Route>
+        <Route path="/inbox" element={<UserInbox />} />
         <Route element={<AdminPrivateRoute />}>
           <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
           <Route path="/admin-users" element={<AdminDashboardUsers />} />
